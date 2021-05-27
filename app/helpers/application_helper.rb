@@ -22,7 +22,7 @@ require 'uri'
 module ApplicationHelper
   # Determines which providers can show a login button in the login modal.
   def iconset_providers
-    providers = configured_providers & [:google, :twitter, :office365, :openid_connect, :ldap]
+    providers = configured_providers & [:google, :twitter, :office365, :ldap]
 
     providers.delete(:twitter) if session[:old_twitter_user_id]
 
@@ -58,9 +58,16 @@ module ApplicationHelper
   # Returns 'active' if the current page is the users home page (used to style header)
   def active_home
     home_actions = %w[show cant_create_rooms]
-    return "active" if controller_name == "admins" && action_name == "index" && current_user.has_role?(:super_admin)
-    return "active" if controller_name == "rooms" && home_actions.include?(action_name)
+    return "active" if params[:controller] == "admins" && params[:action] == "index" && current_user.has_role?(:super_admin)
+    return "active" if params[:controller] == "rooms" && home_actions.include?(params[:action])
     ""
+  end
+
+  # Returns the action method of the current page
+  def active_page
+    route = Rails.application.routes.recognize_path(request.env['PATH_INFO'])
+
+    route[:action]
   end
 
   def role_colour(role)
@@ -68,14 +75,13 @@ module ApplicationHelper
   end
 
   def translated_role_name(role)
-    case role.name
-    when "denied"
+    if role.name == "denied"
       I18n.t("roles.banned")
-    when "pending"
+    elsif role.name == "pending"
       I18n.t("roles.pending")
-    when "admin"
+    elsif role.name == "admin"
       I18n.t("roles.admin")
-    when "user"
+    elsif role.name == "user"
       I18n.t("roles.user")
     else
       role.name
@@ -103,8 +109,6 @@ module ApplicationHelper
     # Make a GET request and validate content type
     http = Net::HTTP.new(url.host, url.port)
     http.use_ssl = (url.scheme == "https")
-    http.read_timeout = 10
-    http.open_timeout = 10
 
     http.start do |web|
       response = web.head(url.request_uri)
@@ -130,11 +134,5 @@ module ApplicationHelper
   # Hide the signin buttons if there is an error on the page
   def show_signin
     !@hide_signin.present?
-  end
-
-  # Returns a more friendly/readable date time object
-  def view_date(date)
-    return "" if date.nil? # Handle invalid dates
-    local_time(date, "%b %d, %Y %-I:%M%P")
   end
 end

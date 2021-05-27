@@ -16,12 +16,12 @@
 <div class="row mt-2">
   <% if search %>
     <div class="col-md-6">
-      <p class="subtitle"><%= title(subtitle) %></p>
+      <p class="subtitle display-3"><%= title(subtitle) %></p>
     </div>
 
     <div class="col-md-6 mb-4">
       <div id="search-bar" class="d-inline-block float-right">
-        <div class="input-group">
+        <!--div class="input-group">
           <input id="search-input" type="text" class="form-control" placeholder="<%= t("settings.search") %>..." value="<%= @search %>">
           <% unless @search.blank? %>
             <span id="clear-search" class="text-primary" onclick="clearSearch()">
@@ -29,20 +29,23 @@
             </span>
           <% end %>
           <span class="input-group-append">
-            <button class="btn btn-outline-primary" type="button" onclick="searchPage()">
+            <button class="btn" type="button" onclick="searchPage()">
               <i class="fas fa-search"></i>
             </button>
           </span>
+        </div-->
+        <div class="position-relative">
+          <% unless @search.blank? %>
+            <span id="clear-search" onclick="clearSearch()">
+              <i class="fas fa-times"></i>
+            </span>
+          <% end %>
+          <span class="input-search-btn">
+            <i class="fas fa-search" onclick="searchPage()"></i>
+          </span>
+          <input id="search-input" class="custom-search-input" type="text" placeholder="<%= t("settings.search") %>..." value="<%= @search %>">
         </div>
       </div>
-      <% if defined?(search_info) && search_info.present? %>
-        <div class="float-right mt-5">
-          <small>
-            <i class="fas fa-info-circle"></i>
-            <%= search_info %>
-          </small>
-        </div>
-      <% end %>
     </div>
   <% else %>
     <div class="col-12">

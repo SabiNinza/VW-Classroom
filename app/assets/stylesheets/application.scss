@@ -47,12 +47,15 @@
 @import "utilities/fonts";
 @import "users";
 
+@import "vwclass-custom";
+
 * {
   outline: none !important;
 }
 
-html, body {
-  font-family: "Source Sans Pro" !important;
+html,
+body {
+  font-family: "Montserrat" !important;
   position: relative;
   width: 100%;
   height: 100%;
@@ -75,12 +78,17 @@ a {
 
 .header {
   height: $header-height;
+  display: flex;
+  align-items: center;
+  box-shadow: 0px 4px 6px rgba(203, 203, 203, 0.25);
+  border: none;
 }
 
 .wrapper {
   position: relative;
   height: auto;
   min-height: calc(100% - #{$header-height} - #{$footer-height});
+  margin-top: 2rem;
 }
 
 .footer {
@@ -136,17 +144,18 @@ a {
 .cookies-banner {
   color: white;
   background-color: $button-color-blue;
+
   #cookies-agree-button {
     margin: 0;
   }
 }
 
 input:focus {
-    border-color: $primary !important;
+  border-color: $primary !important;
 }
 
 .input-group button:focus {
-    box-shadow: none !important;
+  box-shadow: none !important;
 }
 
 .list-group-item-action.active {
@@ -154,17 +163,24 @@ input:focus {
 }
 
 .header .header-nav {
-  color: $text-muted !important;
+  color: black!important;
+  display: flex;
+  align-items: center;
 
   &:hover {
-    padding-bottom: 21px;
-    border-bottom: 1px solid $primary;
+    /* padding-bottom: 21px;
+    border-bottom: 1px solid $primary; */
+    /* color: $primary !important; */
+    color: black!important;
+    font-weight: 600!important;
   }
 
   &.active {
-    color: $primary !important;
-    padding-bottom: 21px;
-    border-bottom: 1px solid $primary;
+    /* color: $primary !important; */
+    color: black!important;
+    font-weight: 600!important;
+    /* padding-bottom: 21px; */
+    /* border-bottom: 1px solid $primary; */
   }
 }
 
@@ -176,7 +192,7 @@ table {
   }
 }
 
-.cursor-pointer{
+.cursor-pointer {
   cursor: pointer;
 }
 
@@ -188,6 +204,29 @@ table {
   transition: all .15s;
 }
 
-.nav-icon i {
-  width: 35px;
+.display-3 {
+  font-size: 29px!important;
+  font-weight: 600;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+}
+.btn {
+  border-radius: 8px!important;
+}
+
+#room_block_container {
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+.alert {
+  margin-top: -2rem;
+}
+
+@media only screen and (max-width:1200px) {
+  .container {
+    width: 89%!important;
+  }
 }

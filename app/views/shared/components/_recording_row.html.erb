@@ -27,7 +27,7 @@
       <a><i id="edit-record" class="fa fa-edit align-top ml-2" data-edit-recordid="<%= recording[:recordID] %>"></i></a>
     </div>
     <div class="small text-muted">
-      <%= t("recording.recorded_on", date: view_date(recording[:startTime])).html_safe %>
+      <%= t("recording.recorded_on", date: recording_date(recording[:startTime])) %>
     </div>
   </td>
   <% if recording_thumbnails? %>
@@ -66,7 +66,8 @@
   <td>
     <% sorted_formats = recording[:playbacks].sort_by! { |p| p[:type] } %>
     <% sorted_formats.each do |p| %>
-      <%= link_to t("recording.format.#{p[:type]}"), p[:url], class: "btn btn-sm btn-primary", target: "_blank" %>
+  <%= link_to t("recording.format.#{p[:type]}"), p[:url], class: "btn btn-sm btn-primary", target: "_blank" %>
+<%= link_to "Edit","https://videowiki.pt/studio?contentUrl=https://class.videowiki.pt/presentation/"+recording[:recordID]+"/video.mp4&ext=mp4",class:"btn btn-sm btn-primary", target: "_blank" %>
     <% end %>
   </td>
   <td class="text-center">

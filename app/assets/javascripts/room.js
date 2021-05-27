@@ -59,7 +59,6 @@ $(document).on('turbolinks:load', function(){
     $(".share-room").click(function() {
       // Update the path of save button
       $("#save-access").attr("data-path", $(this).data("path"))
-      $("#room-owner-uid").val($(this).data("owner"))
 
       // Get list of users shared with and display them
       displaySharedUsers($(this).data("users-path"))
@@ -73,32 +72,11 @@ $(document).on('turbolinks:load', function(){
       $(".bs-searchbox").siblings().hide()
     })
 
-    $("#share-room-select ~ button").on("click", function() {
-      $(".bs-searchbox").siblings().hide()
-    })
-
     $(".bs-searchbox input").on("input", function() {
       if ($(".bs-searchbox input").val() == '' || $(".bs-searchbox input").val().length < 3) {
-        $(".select-options").remove()
         $(".bs-searchbox").siblings().hide()
       } else {
-        // Manually populate the dropdown
-        $.get($("#share-room-select").data("path"), { search: $(".bs-searchbox input").val(), owner_uid: $("#room-owner-uid").val() }, function(users) {
-          $(".select-options").remove()
-          if (users.length > 0) {
-            users.forEach(function(user) {
-              let opt = document.createElement("option")
-              $(opt).val(user.uid)
-              $(opt).text(user.name)
-              $(opt).addClass("select-options")
-              $(opt).attr("data-subtext", user.uid)
-              $("#share-room-select").append(opt)
-            })
-            // Only refresh the select dropdown if there are results to show
-            $('#share-room-select').selectpicker('refresh');
-          } 
-          $(".bs-searchbox").siblings().show()
-        })     
+        $(".bs-searchbox").siblings().show()
       }
     })
 
@@ -176,27 +154,25 @@ function copyInvite() {
     $('#invite-url').blur();
     copy = $("#copy-invite")
     copy.addClass('btn-success');
-    copy.html("<i class='fas fa-check mr-1'></i>" + getLocalizedString("copied"))
+    copy.html("<i class='fas fa-check mr-1'></i>")// + getLocalizedString("copied"))
     setTimeout(function(){
       copy.removeClass('btn-success');
-      copy.html("<i class='fas fa-copy mr-1'></i>" + getLocalizedString("copy"))
+      copy.html("<i class='fas fa-copy mr-1'></i>")// + getLocalizedString("copy"))
     }, 1000)
   }
 }
 
-function copyAccess(target) {
-  input = target ? $("#copy-" + target + "-code") : $("#copy-code")
-  input.attr("type", "text")
-  input.select()
+function copyAccess() {
+  $('#copy-code').attr("type", "text")
+  $('#copy-code').select()
   if (document.execCommand("copy")) {
-    input.attr("type", "hidden")
-    copy = target ? $("#copy-" + target + "-access") : $("#copy-access")
+    $('#copy-code').attr("type", "hidden")
+    copy = $("#copy-access")
     copy.addClass('btn-success');
-    copy.html("<i class='fas fa-check mr-1'></i>" + getLocalizedString("copied"))
+    copy.html("<i class='fas fa-check mr-1'></i>")// + getLocalizedString("copied"))
     setTimeout(function(){
       copy.removeClass('btn-success');
-      originalString = target ? getLocalizedString("room.copy_" + target + "_access") : getLocalizedString("room.copy_access")
-      copy.html("<i class='fas fa-copy mr-1'></i>" + originalString)
+      copy.html("<i class='fas fa-key mr-1'></i>")// + getLocalizedString("room.copy_access"))
     }, 1000)
   }
 }
@@ -204,9 +180,7 @@ function copyAccess(target) {
 function showCreateRoom(target) {
   $("#create-room-name").val("")
   $("#create-room-access-code").text(getLocalizedString("modal.create_room.access_code_placeholder"))
-  $("#create-room-moderator-access-code").text(getLocalizedString("modal.create_room.moderator_access_code_placeholder"))
   $("#room_access_code").val(null)
-  $("#room_moderator_access_code").val(null)
 
   $("#createRoomModal form").attr("action", $("body").data('relative-root'))
   $("#room_mute_on_join").prop("checked", $("#room_mute_on_join").data("default"))
@@ -258,16 +232,6 @@ function showUpdateRoom(target) {
     $("#create-room-access-code").text(getLocalizedString("modal.create_room.access_code_placeholder"))
     $("#room_access_code").val(null)
   }
-
-  var moderatorAccessCode = modal.closest(".room-block").data("room-moderator-access-code")
-
-  if(moderatorAccessCode){
-    $("#create-room-moderator-access-code").text(getLocalizedString("modal.create_room.moderator_access_code") + ": " + moderatorAccessCode)
-    $("#room_moderator_access_code").val(moderatorAccessCode)
-  } else {
-    $("#create-room-moderator-access-code").text(getLocalizedString("modal.create_room.moderator_access_code_placeholder"))
-    $("#room_moderator_access_code").val(null)
-  }
 }
 
 function showDeleteRoom(target) {
@@ -303,24 +267,6 @@ function generateAccessCode(){
 function ResetAccessCode(){
   $("#create-room-access-code").text(getLocalizedString("modal.create_room.access_code_placeholder"))
   $("#room_access_code").val(null)
-}
-
-function generateModeratorAccessCode(){
-  const accessCodeLength = 6
-  var validCharacters = "abcdefghijklmopqrstuvwxyz"
-  var accessCode = ""
-
-  for( var i = 0; i < accessCodeLength; i++){
-    accessCode += validCharacters.charAt(Math.floor(Math.random() * validCharacters.length));
-  }
-
-  $("#create-room-moderator-access-code").text(getLocalizedString("modal.create_room.moderator_access_code") + ": " + accessCode)
-  $("#room_moderator_access_code").val(accessCode)
-}
-
-function ResetModeratorAccessCode(){
-  $("#create-room-moderator-access-code").text(getLocalizedString("modal.create_room.moderator_access_code_placeholder"))
-  $("#room_moderator_access_code").val(null)
 }
 
 function saveAccessChanges() {

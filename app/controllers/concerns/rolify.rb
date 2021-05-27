@@ -123,10 +123,9 @@ module Rolify
       :can_manage_rooms_recordings, :can_appear_in_share_list, :colour)
 
     permission_params.transform_values! do |v|
-      case v
-      when "0"
+      if v == "0"
         "false"
-      when "1"
+      elsif v == "1"
         "true"
       else
         v

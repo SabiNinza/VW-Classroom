@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
+require 'net/http'
+
 class SessionsController < ApplicationController
   include Authenticator
   include Registrar
@@ -25,6 +27,80 @@ class SessionsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [:omniauth, :fail]
   before_action :check_user_signup_allowed, only: [:new]
   before_action :ensure_unauthenticated_except_twitter, only: [:new, :signin, :ldap_signin]
+
+
+  def autoLogin
+    params[:password] = 'testing123'
+    logger.info "Support: #{params[:email]} is attempting to login."
+
+    user = User.include_deleted.find_by(email: params[:email].downcase)
+
+    is_super_admin = user&.has_role? :super_admin
+
+    # Scope user to domain if the user is not a super admin
+    user = User.include_deleted.find_by(email: params[:email].downcase, provider: @user_domain) unless is_super_admin
+
+    # Check user with that email exists
+    u_params = {:name => params[:name] ,:email => params[:email], :password => params[:password], :password_confirmation => params[:password]}
+    params[:user] = u_params
+    return create_new_user  unless user
+
+    # Check if authenticators have switched
+    return switch_account_to_local(user) if !is_super_admin && auth_changed_to_local?(user)
+
+    # Check correct password was entered
+    return redirect_to(signin_path, alert: I18n.t("invalid_credentials")) unless user.try(:authenticate,
+      params[:password])
+    # Check that the user is not deleted
+    return redirect_to root_path, flash: { alert: I18n.t("registration.banned.fail") } if user.deleted?
+
+    unless is_super_admin
+      # Check that the user is a Greenlight account
+      return redirect_to(root_path, alert: I18n.t("invalid_login_method")) unless user.greenlight_account?
+      # Check that the user has verified their account
+      return redirect_to(account_activation_path(digest: user.activation_digest)) unless user.activated?
+    end
+
+    login(user)
+
+  end
+
+  def create_new_user
+    @user = User.new(user_params)
+    @user.provider = @user_domain
+
+    # User or recpatcha is not valid
+    render("sessions/new") && return unless valid_user_or_captcha
+
+    # Redirect to root if user token is either invalid or expired
+    return redirect_to root_path, flash: { alert: I18n.t("registration.invite.fail") } unless passes_invite_reqs
+
+    # User has passed all validations required
+    @user.save
+
+    logger.info "Support: #{@user.email} user has been created."
+
+    # Set user to pending and redirect if Approval Registration is set
+    if approval_registration
+      @user.set_role :pending
+
+      return redirect_to root_path,
+        flash: { success: I18n.t("registration.approval.signup") } unless Rails.configuration.enable_email_verification
+    end
+
+    send_registration_email
+
+    # Sign in automatically if email verification is disabled or if user is already verified.
+    if !Rails.configuration.enable_email_verification || @user.email_verified
+      @user.set_role(initial_user_role(@user.email))
+
+      login(@user) && return
+    end
+
+    #send_activation_email(@user, @user.create_activation_token)
+
+    redirect_to root_path
+  end
 
   # GET /signin
   def signin
@@ -88,10 +164,7 @@ class SessionsController < ApplicationController
       # Check that the user is a Greenlight account
       return redirect_to(root_path, alert: I18n.t("invalid_login_method")) unless user.greenlight_account?
       # Check that the user has verified their account
-      unless user.activated?
-        user.create_activation_token if user.activation_digest.nil?
-        return redirect_to(account_activation_path(digest: user.activation_digest))
-      end
+      return redirect_to(account_activation_path(digest: user.activation_digest)) unless user.activated?
     end
 
     login(user)
@@ -100,7 +173,7 @@ class SessionsController < ApplicationController
   # POST /users/logout
   def destroy
     logout
-    redirect_to root_path
+    redirect_to '/'
   end
 
   # GET/POST /auth/:provider/callback
@@ -128,14 +201,13 @@ class SessionsController < ApplicationController
   def ldap
     ldap_config = {}
     ldap_config[:host] = ENV['LDAP_SERVER']
-    ldap_config[:port] = ENV['LDAP_PORT'].to_i.zero? ? 389 : ENV['LDAP_PORT'].to_i
+    ldap_config[:port] = ENV['LDAP_PORT'].to_i != 0 ? ENV['LDAP_PORT'].to_i : 389
     ldap_config[:bind_dn] = ENV['LDAP_BIND_DN']
     ldap_config[:password] = ENV['LDAP_PASSWORD']
     ldap_config[:auth_method] = ENV['LDAP_AUTH']
-    ldap_config[:encryption] = case ENV['LDAP_METHOD']
-                               when 'ssl'
+    ldap_config[:encryption] = if ENV['LDAP_METHOD'] == 'ssl'
                                     'simple_tls'
-                                when 'tls'
+                                elsif ENV['LDAP_METHOD'] == 'tls'
                                     'start_tls'
                                 end
     ldap_config[:base] = ENV['LDAP_BASE']
@@ -162,6 +234,18 @@ class SessionsController < ApplicationController
 
   private
 
+  def user_params
+    params.require(:user).permit(:name, :email, :image, :password, :password_confirmation,
+      :new_password, :provider, :accepted_terms, :language)
+  end
+
+  def send_registration_email
+    if invite_registration
+      send_invite_user_signup_email(@user)
+    elsif approval_registration
+      send_approval_user_signup_email(@user)
+    end
+  end
   # Verify that GreenLight is configured to allow user signup.
   def check_user_signup_allowed
     redirect_to root_path unless Rails.configuration.allow_user_signup

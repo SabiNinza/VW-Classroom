@@ -45,11 +45,6 @@ module Authenticator
       # Dont redirect to any of these urls
       dont_redirect_to = [root_url, signin_url, ldap_signin_url, ldap_callback_url, signup_url, unauthorized_url,
                           internal_error_url, not_found_url]
-
-      unless ENV['OAUTH2_REDIRECT'].nil?
-        dont_redirect_to.push(File.join(ENV['OAUTH2_REDIRECT'], "auth", "openid_connect", "callback"))
-      end
-
       url = if cookies[:return_to] && !dont_redirect_to.include?(cookies[:return_to])
         cookies[:return_to]
       elsif user.role.get_permission("can_create_rooms")
@@ -63,9 +58,7 @@ module Authenticator
 
       redirect_to url
     else
-      session[:user_id] = nil
-      user.create_activation_token
-      redirect_to account_activation_path(digest: user.activation_digest)
+      redirect_to resend_path
     end
   end
 
@@ -113,7 +106,7 @@ module Authenticator
       old_user.rooms.each do |room|
         room.owner = user
 
-        room.name = "Old #{room.name}" if room.id == old_user.main_room.id
+        room.name = "Old " + room.name if room.id == old_user.main_room.id
 
         room.save!
       end
