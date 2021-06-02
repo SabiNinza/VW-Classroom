@@ -18,7 +18,7 @@
     <table class="table table-hover table-vcenter text-wrap table-no-border">
       <tbody class="no-border-top">
         <td>
-          <span class="stamp stamp-md bg-primary">
+          <span class="stamp stamp-md bg-primary" style="background:<%=room.primary_color %> !important">
             <% if room == current_user.main_room %>
               <i class="fas fa-home"></i>
             <% else %>
@@ -29,6 +29,7 @@
         <td>
           <div>
             <h4 contenteditable="false" class="m-0 force-text-normal room-name-text" ><%= room.name %></h4>
+            <h4 class="m-0 force-text-normal room-primarycolor-text d-none" ><%= room.primary_color %></h4>
           </div>
           <div style="display: none">
             <input class="form-control input-sm w-100 h-4 room-name-editable" value="<%= room.name %>">
