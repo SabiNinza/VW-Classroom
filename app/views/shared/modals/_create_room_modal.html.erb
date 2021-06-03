@@ -90,6 +90,22 @@
               <%= f.check_box :auto_join, class: "custom-switch-input", checked: false %>
               <span class="custom-switch-indicator float-right cursor-pointer"></span>
             </label>
+
+            <% # Room Primary Theme Color Select/Update %>
+            <label class="pl-0 my-3 w-100 text-left d-inline-block">
+              <span class="custom-switch-description">
+                <%= t("modal.create_room.room_primary_color") %>
+              </span>
+              <span class="float-right">
+                <% pColors = ["#9DCD5B","#3BA0BE","#6859B4","#E4D033","#EA7526","#C6211B","#F36677","#B3B3B3"] %>
+                <% pColors.each do |pc| %>
+                  <span class="px-3 py-1 cursor-pointer" style="background:<%= pc %>" onclick="setRoomPrimaryColor('<%= pc %>')"></span>
+                <% end %>
+                <span id="selected-room-color" class="mt-2 d-block font-weight-bold" style="color:#9DCD5B">#9DCD5B</span>
+              </span>
+              <%= f.hidden_field :primary_color, id: "room-primary-color", value: "#9DCD5B" %>
+            </label>
+            
           <div class="mt-4">
             <%= f.submit t("modal.create_room.create"), class: "create-only btn btn-primary create-room-button" %>
             <%= f.submit t("modal.room_settings.update"), class: "update-only btn btn-primary create-room-button" %>

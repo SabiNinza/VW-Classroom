@@ -207,6 +207,9 @@ function showUpdateRoom(target) {
   var update_path = modal.closest(".room-block").data("path")
   var settings_path = modal.data("settings-path")
   $("#create-room-name").val(modal.closest(".room-block").find(".room-name-text").text().trim())
+  let rpc = modal.closest(".room-block").find(".room-primarycolor-text").text().trim() //rpc = room primary color
+  $("#room-primary-color").val(rpc)
+  $("#selected-room-color").text(rpc).css('color',rpc);
   $("#createRoomModal form").attr("action", update_path)
 
   //show all elements & their children with a update-only class
@@ -273,6 +276,11 @@ function saveAccessChanges() {
   let listItemsToAdd = $("#user-list li:not(.remove-shared)").toArray().map(user => $(user).data("uid"))
 
   $.post($("#save-access").data("path"), {add: listItemsToAdd})
+}
+// set room primary theme color on click 
+function setRoomPrimaryColor(pc){
+  $("#room-primary-color").val(pc);
+  $("#selected-room-color").text(pc).css('color',pc);
 }
 
 // Get list of users shared with and display them
