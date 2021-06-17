@@ -53,7 +53,7 @@ class Setting < ApplicationRecord
     when "Privacy Policy URL"
       nil
     when "Primary Color"
-      Rails.configuration.primary_color_default
+      '#BFBFBF' #Rails.configuration.primary_color_default
     when "Registration Method"
       Rails.configuration.registration_method_default
     when "Room Authentication"
