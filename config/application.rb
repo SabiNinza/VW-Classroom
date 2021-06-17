@@ -145,7 +145,7 @@ module Greenlight
     config.branding_image_default = "https://class.videowiki.pt/images/VideoWiki_Logo.svg"
 
     # Default primary color if the user does not specify one
-    config.primary_color_default = "#467fcf"
+    config.primary_color_default = "#BFBFBF" #"#467fcf"
 
     # Default primary color lighten if the user does not specify one
     config.primary_color_lighten_default = "#e8eff9"
