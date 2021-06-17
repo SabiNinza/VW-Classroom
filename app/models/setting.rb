@@ -47,7 +47,7 @@ class Setting < ApplicationRecord
     # return default value
     case name
     when "Branding Image"
-      Rails.configuration.branding_image_default
+      'https://videowiki.pt/img/logo.64c7579d.svg' #Rails.configuration.branding_image_default
     when "Legal URL"
       nil
     when "Privacy Policy URL"
