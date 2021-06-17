@@ -85,6 +85,10 @@
         <a href="" data-toggle="modal" data-target="#deleteRecordingModal" data-path="<%= delete_recording_path(meetingID: recording[:meetingID], record_id: recording[:recordID]) %>" class="delete-rec dropdown-item">
           <i class="dropdown-icon far fa-trash-alt"></i> <%= t("delete") %>
         </a>
+        <div class="dropdown-divider"></div>
+        <%= link_to 'https://dev.class.videowiki.pt/presentation/'+recording[:recordID]+'/video.mp4', :class => "dropdown-item" do %>
+          <i class="dropdown-icon fas fa-download"></i><%= t('download') %>
+        <% end %>
       </div>
     </div>
   </td>
