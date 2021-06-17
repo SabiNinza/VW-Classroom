@@ -47,13 +47,13 @@ class Setting < ApplicationRecord
     # return default value
     case name
     when "Branding Image"
-      'https://videowiki.pt/img/logo.64c7579d.svg' #Rails.configuration.branding_image_default
+      Rails.configuration.branding_image_default
     when "Legal URL"
       nil
     when "Privacy Policy URL"
       nil
     when "Primary Color"
-      "#467fcf" #Rails.configuration.primary_color_default
+      Rails.configuration.primary_color_default
     when "Registration Method"
       Rails.configuration.registration_method_default
     when "Room Authentication"
