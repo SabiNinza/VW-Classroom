@@ -86,9 +86,9 @@
           <i class="dropdown-icon far fa-trash-alt"></i> <%= t("delete") %>
         </a>
         <div class="dropdown-divider"></div>
-        <%= link_to 'https://dev.class.videowiki.pt/presentation/'+recording[:recordID]+'/video.mp4', :class => "dropdown-item" do %>
+        <a href="/presentation/<%= recording[:recordID] %>/video.mp4" class="dropdown-item" download="<%= recording[:name] %>" target="_blank">
           <i class="dropdown-icon fas fa-download"></i><%= t('download') %>
-        <% end %>
+        </a>
       </div>
     </div>
   </td>
