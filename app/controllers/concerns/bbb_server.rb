@@ -67,15 +67,13 @@ module BbbServer
       attendeePW: room.attendee_pw,
       moderatorOnlyMessage: options[:moderator_message],
       muteOnStart: options[:mute_on_start] || false,
-	  logo: @settings.get_value("Branding Image"),
-    primaryColor: "#000000",
-    secondaryColor: "#FF0000",
+	    logo: options[:brand_image] || @settings.get_value("Branding Image"),
       "meta_#{META_LISTED}": options[:recording_default_visibility] || false,
       "meta_bbb-origin-version": Greenlight::Application::VERSION,
       "meta_bbb-origin": "Greenlight",
       "meta_bbb-origin-server-name": options[:host],
-      "meta_bbb-origin-primaryColor": "#000000",
-      "meta_bbb-origin-secondaryColor": "#FF0000"
+      "meta_primary-color": room.primary_color,
+      "meta_secondary-color": options[:secondary_color],
     }
 
     create_options[:guestPolicy] = "ASK_MODERATOR" if options[:require_moderator_approval]

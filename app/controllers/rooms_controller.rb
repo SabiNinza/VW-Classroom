@@ -176,7 +176,8 @@ class RoomsController < ApplicationController
     opts[:mute_on_start] = room_setting_with_config("muteOnStart")
     opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
     opts[:record] = record_meeting
-
+    opts[:secondary_color] = @room_settings["secondaryColor"]
+    opts[:brand_image] = @room_settings["brandImage"]
     begin
       redirect_to join_path(@room, current_user.name, opts, current_user.uid)
     rescue BigBlueButton::BigBlueButtonException => e
@@ -337,6 +338,8 @@ class RoomsController < ApplicationController
       "anyoneCanStart": options[:anyone_can_start] == "1",
       "joinModerator": options[:all_join_moderator] == "1",
       "recording": options[:recording] == "1",
+      "secondaryColor": options[:secondary_color],
+      "brandImage": options[:brand_image]
     }
 
     room_settings.to_json
@@ -345,7 +348,7 @@ class RoomsController < ApplicationController
   def room_params
     params.require(:room).permit(:name, :auto_join, :mute_on_join, :access_code,
       :require_moderator_approval, :anyone_can_start, :all_join_moderator,
-      :recording, :presentation, :primary_color)
+      :recording, :presentation, :primary_color, :secondary_color, :brand_image)
   end
 
   # Find the room from the uid.
