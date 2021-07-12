@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_08_114302) do
+ActiveRecord::Schema.define(version: 2021_05_30_165205) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -77,7 +77,6 @@ ActiveRecord::Schema.define(version: 2021_07_08_114302) do
     t.string "provider"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "can_custom_branding", default: false
     t.index ["name", "provider"], name: "index_roles_on_name_and_provider", unique: true
     t.index ["name"], name: "index_roles_on_name"
     t.index ["priority", "provider"], name: "index_roles_on_priority_and_provider", unique: true

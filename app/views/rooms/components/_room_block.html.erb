@@ -22,14 +22,14 @@
             <% if room == current_user.main_room %>
               <i class="fas fa-home"></i>
             <% else %>
-              <i class="fas fa-chalkboard-teacher" ></i>
+              <i class="fas fa-chalkboard-teacher"></i>
             <% end %>
           </span>
         </td>
         <td>
           <div>
             <h4 contenteditable="false" class="m-0 force-text-normal room-name-text" ><%= room.name %></h4>
-            <h4 class="m-0 force-text-normal room-primarycolor-text d-none" ><%= room.primary_color %></h4>  
+            <h4 class="m-0 force-text-normal room-primarycolor-text d-none" ><%= room.primary_color %></h4>
           </div>
           <div style="display: none">
             <input class="form-control input-sm w-100 h-4 room-name-editable" value="<%= room.name %>">

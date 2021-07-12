@@ -88,10 +88,6 @@ module ApplicationHelper
     end
   end
 
-  def role_custom_branding(role)
-    role.can_custom_branding || false
-  end
-
   def can_reset_password
     # Check if admin is editting user and user is a greenlight account
     Rails.configuration.enable_email_verification &&
