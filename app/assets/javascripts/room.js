@@ -146,6 +146,7 @@ $(document).on('turbolinks:load', function(){
     // trigger initial room filter
     filterRooms();
   }
+  $('[data-toggle="tooltip"]').tooltip();
 });
 
 function copyInvite() {
@@ -207,7 +208,7 @@ function showUpdateRoom(target) {
   var update_path = modal.closest(".room-block").data("path")
   var settings_path = modal.data("settings-path")
   $("#create-room-name").val(modal.closest(".room-block").find(".room-name-text").text().trim())
-  let rpc = modal.closest(".room-block").find(".room-primarycolor-text").text().trim() //rpc = room primary color
+  let rpc = modal.closest(".room-block").find(".room-primarycolor-text").text().trim() || '#467FCF' //rpc = room primary color
   $("#room-primary-color").val(rpc)
   $("#selected-room-color").text(rpc).css('color',rpc);
   $("#createRoomModal form").attr("action", update_path)
@@ -252,7 +253,13 @@ function updateCurrentSettings(settings_path){
     $("#room_all_join_moderator").prop("checked", $("#room_all_join_moderator").data("default") || settings.joinModerator)
     $("#room_recording").prop("checked", $("#room_recording").data("default") || Boolean(settings.recording))
     $("#room_secondary_color").val(settings.secondaryColor)
+    $("#brand_icon_name").text(settings.brandImage || null)
   })
+}
+
+function selectBrandImage(sourceID,targetID){
+  let fileName = document.getElementById(sourceID).files[0].name
+  document.getElementById(targetID).innerText = fileName
 }
 
 function generateAccessCode(){
@@ -377,7 +384,7 @@ function filterRooms() {
 
   rooms.each(function(i, room) {
     let text = $(this).find('h4').text();
-    room.style.display = (text.toLowerCase().indexOf(search_term) < 0) ? 'none' : 'block';
+    room.style.display = (text.toLowerCase().indexOf(search_term) < 0) ? 'none' : 'flex';
   })
 }
 

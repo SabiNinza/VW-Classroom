@@ -33,8 +33,10 @@ class RoomsController < ApplicationController
                 unless: -> { !Rails.configuration.enable_email_verification }
   before_action :verify_room_owner_valid, only: [:show, :join]
   before_action :verify_user_not_admin, only: [:show]
+
   skip_before_action :verify_authenticity_token, only: [:join]
 
+  
   # POST /
   def create
     # Return to root if user is not signed in
@@ -47,6 +49,9 @@ class RoomsController < ApplicationController
     @room = Room.new(name: room_params[:name], access_code: room_params[:access_code], primary_color: room_params[:primary_color])
     @room.owner = current_user
     @room.room_settings = create_room_settings_string(room_params)
+    
+    @room.brand_image.attach(room_params[:brand_image])
+    
 
     # Save the room and redirect if it fails
     return redirect_to current_user.main_room, flash: { alert: I18n.t("room.create_room_error") } unless @room.save
@@ -74,7 +79,7 @@ class RoomsController < ApplicationController
       if @room.owned_by?(current_user) && !current_user.role.get_permission("can_create_rooms")
         return redirect_to cant_create_rooms_path
       end
-
+      
       # User is allowed to have rooms
       @search, @order_column, @order_direction, recs =
         recordings(@room.bbb_id, params.permit(:search, :column, :direction), true)
@@ -139,6 +144,7 @@ class RoomsController < ApplicationController
     begin
       # Don't delete the users home room.
       raise I18n.t("room.delete.home_room") if @room == @room.owner.main_room
+      @room.brand_image.purge if @room.brand_image.attached?
       @room.destroy
     rescue => e
       flash[:alert] = I18n.t("room.delete.fail", error: e)
@@ -177,7 +183,7 @@ class RoomsController < ApplicationController
     opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
     opts[:record] = record_meeting
     opts[:secondary_color] = @room_settings["secondaryColor"]
-    opts[:brand_image] = @room_settings["brandImage"]
+    opts[:brand_image] = url_for(@room.brand_image) if @room.brand_image.attached?
     begin
       redirect_to join_path(@room, current_user.name, opts, current_user.uid)
     rescue BigBlueButton::BigBlueButtonException => e
@@ -206,7 +212,7 @@ class RoomsController < ApplicationController
         access_code: options[:access_code],
         primary_color: options[:primary_color]
       )
-
+      @room.brand_image.attach(room_params[:brand_image])
       flash[:success] = I18n.t("room.update_settings_success")
     rescue => e
       logger.error "Support: Error in updating room settings: #{e}"
@@ -215,7 +221,8 @@ class RoomsController < ApplicationController
 
     redirect_back fallback_location: room_path(@room)
   end
-
+  
+  
   # GET /:room_uid/current_presentation
   def current_presentation
     attached = @room.presentation.attached?
@@ -339,7 +346,7 @@ class RoomsController < ApplicationController
       "joinModerator": options[:all_join_moderator] == "1",
       "recording": options[:recording] == "1",
       "secondaryColor": options[:secondary_color],
-      "brandImage": options[:brand_image]
+      "brandImage": options[:brand_image].original_filename
     }
 
     room_settings.to_json
