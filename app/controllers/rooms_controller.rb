@@ -182,8 +182,11 @@ class RoomsController < ApplicationController
     opts[:mute_on_start] = room_setting_with_config("muteOnStart")
     opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
     opts[:record] = record_meeting
-    opts[:secondary_color] = @room_settings["secondaryColor"]
-    opts[:brand_image] = url_for(@room.brand_image) if @room.brand_image.attached?
+    if current_user.role.name === "organization"
+      opts[:primary_color] = @room.primary_color
+      opts[:secondary_color] = @room_settings["secondaryColor"]
+      opts[:brand_image] = url_for(@room.brand_image) if @room.brand_image.attached?
+    end
     begin
       redirect_to join_path(@room, current_user.name, opts, current_user.uid)
     rescue BigBlueButton::BigBlueButtonException => e
@@ -202,7 +205,6 @@ class RoomsController < ApplicationController
     begin
       options = params[:room].nil? ? params : params[:room]
       raise "Room name can't be blank" if options[:name].blank?
-
       # Update the rooms values
       room_settings_string = create_room_settings_string(options)
 
@@ -212,7 +214,6 @@ class RoomsController < ApplicationController
         access_code: options[:access_code],
         primary_color: options[:primary_color]
       )
-      @room.brand_image.attach(room_params[:brand_image])
       flash[:success] = I18n.t("room.update_settings_success")
     rescue => e
       logger.error "Support: Error in updating room settings: #{e}"
