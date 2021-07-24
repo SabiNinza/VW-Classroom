@@ -22,7 +22,6 @@ class Room < ApplicationRecord
   include Deleteable
 
   before_create :setup
-
   before_destroy :destroy_presentation
 
   validates :name, presence: true
@@ -31,6 +30,8 @@ class Room < ApplicationRecord
   has_many :shared_access
 
   has_one_attached :presentation
+  has_one_attached :brand_image
+
 
   def self.admins_search(string)
     active_database = Rails.configuration.database_configuration[Rails.env]["adapter"]

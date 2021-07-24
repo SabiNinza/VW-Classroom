@@ -1,0 +1,28 @@
+<%
+###
+#
+# Author Ashwani Bhardwaj : VideoWiki
+#
+###
+%>
+
+<div class="modal fade overflow-auto" id="uploadBackImageModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center">
+        <div class="modal-header">Choose Background Image</div>
+        <div class="modal-body overflow-auto" style="height: calc(100vh - 180px);">
+          <div>
+            <% backimages = Dir.glob("public/backImages/*.png") %>
+            <% backimages.each do |image| %>
+                <%= image_tag "/backImages/#{image.split('/').last}", class: 'mt-1 cursor-pointer',data: { dismiss: "modal", target: "#createRoomModal", toggle: "modal", backimage: "#{image.split('/').last}"}, onclick:"selectBackImage(this,'back_image_name')" %>
+            <% end %>
+          </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary create-room-button" data-toggle="modal" data-target="#createRoomModal" data-dismiss="modal">
+                <%= t("cancel") %>
+            </button>
+        </div>
+    </div>
+  </div>
+</div>
