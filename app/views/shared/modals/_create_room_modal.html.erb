@@ -91,7 +91,7 @@
               <span class="custom-switch-indicator float-right cursor-pointer"></span>
             </label>
 
-            <% if role_custom_branding(@current_user.role) != false %>
+            <% if role_custom_branding(@current_user.role) %>
             <table class="w-100 text-left mt-2">
             <% # Room Primary Theme Color Select/Update %>
               <tr>
@@ -102,39 +102,68 @@
                 </td>
                 <td>
                   <span class="float-right d-block">
-                    <% pColors = ["#58821E","#9DCD5B","#3BA0BE","#6859B4","#E4D033","#EA7526","#C6211B","#F36677","#B3B3B3"] %>
+                    <% # E4D033 - Previous Yellow Color Now Not In List %>
+                    <% pColors = ["#467FCF","#58821E","#9DCD5B","#3BA0BE","#6859B4","#F2C244","#EA7526","#C6211B","#F36677","#B3B3B3"] %> 
                     <% pColors.each do |pc| %>
                       <span class="px-3 py-1 cursor-pointer" style="background:<%= pc %>" onclick="setRoomPrimaryColor('<%= pc %>')"></span>
                     <% end %>
-                    <span id="selected-room-color" class="mt-2 d-block font-weight-bold" style="color:#9DCD5B">#9DCD5B</span>
+                    <span id="selected-room-color" class="mt-2 d-block font-weight-bold" style="color:#467FCF">#467FCF</span>
                   </span>
-                  <%= f.hidden_field :primary_color, id: "room-primary-color", value: "#9DCD5B" %>
+                  <%= f.hidden_field :primary_color, id: "room-primary-color", value: "#467FCF" %>
                 </td>
               </tr>
               <% # Room Secondary Theme Color Select/Update %>
               <tr>
                 <td>
-                  <span class="custom-switch-description d-block">
+                  <span class="custom-switch-description d-block mt-2">
                     <%= t("modal.create_room.room_secondary_color") %>
                   </span>
                 </td>
                 <td>
-                  <span class="float-right d-block">
-                    <%= f.text_field :secondary_color, id: "room_secondary_color", class: "form-control text-center", value: "", autocomplete: :off %>
+                  <span class="float-right d-block mt-2">
+                    <%= f.text_field :secondary_color, id: "room_secondary_color", class: "form-control text-left", value: "", autocomplete: :off %>
                   </span>
                 </td>
               </tr>
-              <% # Room Brand Image Select/Update %>
+              <% # Room Brand Image Select/Update%>
               <tr>
                 <td>
-                  <span class="custom-switch-description d-block">
+                  <span class="custom-switch-description d-block my-4">
                     <%= t("modal.create_room.room_brand_icon") %>
                   </span>
                 </td>
                 <td width="216px">
-                  <span class="float-right d-block">
-                    <%= f.file_field :brand_image, id: "room_brand_icon", class: "form-control text-center", value: "" %>
+                  <div class="my-4 d-flex justify-content-between align-items-center position-relative">
+                    <span class="d-block">
+                      <%= f.label :brand_icon, id:'brand_icon_lbl', class:"m-0 cursor-pointer p-2 rounded btn-light text-center" do %>
+                        <i class="fas fa-upload mr-1"></i> <%= t("modal.create_room.room_upload_placeholder") %>
+                      <% end %>
+                      <%= f.file_field :brand_image, id: "room_brand_icon", class: "form-control text-center d-none", onChange:"selectBrandImage('room_brand_icon','brand_icon_name')" %>
+                    </span>
+                    <span class="d-block mx-1" id="brand_icon_name"></span>
+                    <button type="button" class="btn btn-secondary cursor-pointer" data-toggle="tooltip" data-placement="left" title="<%= t('modal.create_room.room_brand_icon_info') %>">
+                      <i class="fas fa-info"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <% # Room Back Image Select/Update%>
+              <tr>
+                <td>
+                  <span class="custom-switch-description d-block my-4">
+                    <%= t("modal.create_room.room_background_image") %>
                   </span>
+                </td>
+                <td width="216px">
+                  <div class="my-4 d-flex justify-content-between align-items-center position-relative">
+                    <span class="d-block">
+                      <label id="back_image_lbl" class="m-0 cursor-pointer p-2 rounded btn-light text-center" data-toggle="modal" data-target="#uploadBackImageModal" data-dismiss="modal">
+                        <i class="fas fa-upload mr-1"></i> <%= t("modal.create_room.room_upload_placeholder") %>
+                      </label>
+                      <%= f.text_field :back_image, id: "room_back_image", class: "form-control text-center d-none", value: "" %>
+                    </span>
+                    <span class="d-block mx-1" id="back_image_name"></span>
+                  </div>
                 </td>
               </tr>
             </table>
@@ -157,3 +186,5 @@
     </div>
   </div>
 </div>
+
+<%= render "shared/modals/backimage_upload_modal" %>
