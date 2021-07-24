@@ -186,7 +186,7 @@ class RoomsController < ApplicationController
       opts[:primary_color] = @room.primary_color
       opts[:secondary_color] = @room_settings["secondaryColor"]
       opts[:brand_image] = url_for(@room.brand_image) if @room.brand_image.attached?
-      opts[:back_image] = root_url+'backImages/'+@room_settings["backImage"]
+      opts[:back_image] = root_url+'backImages/'+@room_settings["backImage"] if @room_settings["backImage"]
     end
     begin
       redirect_to join_path(@room, current_user.name, opts, current_user.uid)
