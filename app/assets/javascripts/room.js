@@ -254,12 +254,19 @@ function updateCurrentSettings(settings_path){
     $("#room_recording").prop("checked", $("#room_recording").data("default") || Boolean(settings.recording))
     $("#room_secondary_color").val(settings.secondaryColor)
     $("#brand_icon_name").text(settings.brandImage || null)
+    $("#back_image_name").text(settings.backImage || null)
+    $("#room_back_image").val(settings.backImage || null)
   })
 }
 
 function selectBrandImage(sourceID,targetID){
   let fileName = document.getElementById(sourceID).files[0].name
   document.getElementById(targetID).innerText = fileName
+}
+function selectBackImage(elem,targetID){
+  let backImage = elem.dataset.backimage;
+  document.getElementById("room_back_image").value = backImage;
+  document.getElementById(targetID).innerText = backImage;
 }
 
 function generateAccessCode(){

@@ -74,6 +74,7 @@ module BbbServer
       "meta_bbb-origin-server-name": options[:host],
       "meta_primary-color": options[:primary_color],
       "meta_secondary-color": options[:secondary_color],
+      "meta_back-image": options[:back_image]
     }
 
     create_options[:guestPolicy] = "ASK_MODERATOR" if options[:require_moderator_approval]

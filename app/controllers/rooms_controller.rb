@@ -186,6 +186,7 @@ class RoomsController < ApplicationController
       opts[:primary_color] = @room.primary_color
       opts[:secondary_color] = @room_settings["secondaryColor"]
       opts[:brand_image] = url_for(@room.brand_image) if @room.brand_image.attached?
+      opts[:back_image] = root_url+'backImages/'+@room_settings["backImage"]
     end
     begin
       redirect_to join_path(@room, current_user.name, opts, current_user.uid)
@@ -347,7 +348,8 @@ class RoomsController < ApplicationController
       "joinModerator": options[:all_join_moderator] == "1",
       "recording": options[:recording] == "1",
       "secondaryColor": options[:secondary_color],
-      "brandImage": options[:brand_image].original_filename
+      "brandImage": options[:brand_image].original_filename,
+      "backImage": options[:back_image]
     }
 
     room_settings.to_json
@@ -356,7 +358,7 @@ class RoomsController < ApplicationController
   def room_params
     params.require(:room).permit(:name, :auto_join, :mute_on_join, :access_code,
       :require_moderator_approval, :anyone_can_start, :all_join_moderator,
-      :recording, :presentation, :primary_color, :secondary_color, :brand_image)
+      :recording, :presentation, :primary_color, :secondary_color, :brand_image, :back_image)
   end
 
   # Find the room from the uid.

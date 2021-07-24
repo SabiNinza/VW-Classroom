@@ -147,6 +147,25 @@
                   </div>
                 </td>
               </tr>
+              <% # Room Back Image Select/Update%>
+              <tr>
+                <td>
+                  <span class="custom-switch-description d-block my-4">
+                    <%= t("modal.create_room.room_background_image") %>
+                  </span>
+                </td>
+                <td width="216px">
+                  <div class="my-4 d-flex justify-content-between align-items-center position-relative">
+                    <span class="d-block">
+                      <label id="back_image_lbl" class="m-0 cursor-pointer p-2 rounded btn-light text-center" data-toggle="modal" data-target="#uploadBackImageModal" data-dismiss="modal">
+                        <i class="fas fa-upload mr-1"></i> <%= t("modal.create_room.room_upload_placeholder") %>
+                      </label>
+                      <%= f.text_field :back_image, id: "room_back_image", class: "form-control text-center d-none", value: "" %>
+                    </span>
+                    <span class="d-block mx-1" id="back_image_name"></span>
+                  </div>
+                </td>
+              </tr>
             </table>
             <% end %>
           <div class="mt-4">
@@ -167,3 +186,5 @@
     </div>
   </div>
 </div>
+
+<%= render "shared/modals/backimage_upload_modal" %>
