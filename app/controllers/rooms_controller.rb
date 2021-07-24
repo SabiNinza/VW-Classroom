@@ -182,7 +182,7 @@ class RoomsController < ApplicationController
     opts[:mute_on_start] = room_setting_with_config("muteOnStart")
     opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
     opts[:record] = record_meeting
-    if current_user.role.name === "organization"
+    if current_user.role.name === "Organization"
       opts[:primary_color] = @room.primary_color
       opts[:secondary_color] = @room_settings["secondaryColor"]
       opts[:brand_image] = url_for(@room.brand_image) if @room.brand_image.attached?
