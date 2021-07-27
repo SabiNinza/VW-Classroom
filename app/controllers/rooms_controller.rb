@@ -187,6 +187,8 @@ class RoomsController < ApplicationController
       opts[:secondary_color] = @room_settings["secondaryColor"]
       opts[:brand_image] = url_for(@room.brand_image) if @room.brand_image.attached?
       opts[:back_image] = root_url+'backImages/'+@room_settings["backImage"] if @room_settings["backImage"]
+    else
+      opts[:back_image] = ''
     end
     begin
       redirect_to join_path(@room, current_user.name, opts, current_user.uid)
@@ -208,7 +210,9 @@ class RoomsController < ApplicationController
       raise "Room name can't be blank" if options[:name].blank?
       # Update the rooms values
       room_settings_string = create_room_settings_string(options)
-
+      if room_params[:brand_image].present?
+        @room.brand_image.attach(room_params[:brand_image])
+      end
       @room.update_attributes(
         name: options[:name],
         room_settings: room_settings_string,
@@ -348,7 +352,7 @@ class RoomsController < ApplicationController
       "joinModerator": options[:all_join_moderator] == "1",
       "recording": options[:recording] == "1",
       "secondaryColor": options[:secondary_color],
-      "brandImage": options[:brand_image].original_filename,
+      "brandImage": options[:brand_image_name],
       "backImage": options[:back_image]
     }
 
@@ -358,7 +362,7 @@ class RoomsController < ApplicationController
   def room_params
     params.require(:room).permit(:name, :auto_join, :mute_on_join, :access_code,
       :require_moderator_approval, :anyone_can_start, :all_join_moderator,
-      :recording, :presentation, :primary_color, :secondary_color, :brand_image, :back_image)
+      :recording, :presentation, :primary_color, :secondary_color, :brand_image, :brand_image_name, :back_image)
   end
 
   # Find the room from the uid.
