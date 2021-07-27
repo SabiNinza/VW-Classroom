@@ -134,13 +134,13 @@
                 </td>
                 <td width="216px">
                   <div class="my-4 d-flex justify-content-between align-items-center position-relative">
-                    <span class="d-block">
+                    <span class="d-block text-nowrap">
                       <%= f.label :brand_icon, id:'brand_icon_lbl', class:"m-0 cursor-pointer p-2 rounded btn-light text-center" do %>
                         <i class="fas fa-upload mr-1"></i> <%= t("modal.create_room.room_upload_placeholder") %>
                       <% end %>
                       <%= f.file_field :brand_image, id: "room_brand_icon", class: "form-control text-center d-none", onChange:"selectBrandImage('room_brand_icon','brand_icon_name')" %>
                     </span>
-                    <span class="d-block mx-1" id="brand_icon_name"></span>
+                    <%= f.text_field :brand_image_name, id:"brand_icon_name", class:"w-50 d-block border-0 mx-1", value:"" %>
                     <button type="button" class="btn btn-secondary cursor-pointer" data-toggle="tooltip" data-placement="left" title="<%= t('modal.create_room.room_brand_icon_info') %>">
                       <i class="fas fa-info"></i>
                     </button>
@@ -156,7 +156,7 @@
                 </td>
                 <td width="216px">
                   <div class="my-4 d-flex justify-content-between align-items-center position-relative">
-                    <span class="d-block">
+                    <span class="d-block text-nowrap">
                       <label id="back_image_lbl" class="m-0 cursor-pointer p-2 rounded btn-light text-center" data-toggle="modal" data-target="#uploadBackImageModal" data-dismiss="modal">
                         <i class="fas fa-upload mr-1"></i> <%= t("modal.create_room.room_upload_placeholder") %>
                       </label>
