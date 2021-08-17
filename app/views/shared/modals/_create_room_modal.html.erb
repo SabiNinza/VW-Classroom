@@ -107,7 +107,13 @@
                     <% pColors.each do |pc| %>
                       <span class="px-3 py-1 cursor-pointer" style="background:<%= pc %>" onclick="setRoomPrimaryColor('<%= pc %>')"></span>
                     <% end %>
-                    <span id="selected-room-color" class="mt-2 d-block font-weight-bold" style="color:#467FCF">#467FCF</span>
+                    <span class="d-flex align-items-center justify-content-between">
+                      <span id="selected-room-color" class="mt-2 d-block font-weight-bold" style="color:#467FCF">#467FCF</span>
+                      <i class="fas fa-undo mt-2 cursor-pointer" data-toggle="tooltip" data-placement="left" title="<%= t('remove') %>" 
+                      onClick="document.getElementById('room-primary-color').value = '#467FCF';
+                               document.getElementById('selected-room-color').innerText = '#467FCF';
+                               document.getElementById('selected-room-color').style.color = '#467FCF'"></i>
+                    </span>
                   </span>
                   <%= f.hidden_field :primary_color, id: "room-primary-color", value: "#467FCF" %>
                 </td>
@@ -120,8 +126,9 @@
                   </span>
                 </td>
                 <td>
-                  <span class="float-right d-block mt-2">
+                  <span class="float-right d-block mt-2 position-relative">
                     <%= f.text_field :secondary_color, id: "room_secondary_color", class: "form-control text-left", value: "", autocomplete: :off %>
+                    <i class="fas fa-undo input-search-btn" data-toggle="tooltip" data-placement="left" title="<%= t('remove') %>" onClick="document.getElementById('room_secondary_color').value = ''"></i>
                   </span>
                 </td>
               </tr>
@@ -130,6 +137,8 @@
                 <td>
                   <span class="custom-switch-description d-block my-4">
                     <%= t("modal.create_room.room_brand_icon") %>
+                    <i class="fas fa-undo cursor-pointer" data-toggle="tooltip" data-placement="bottom" title="<%= t('remove') %>" 
+                    onClick="document.getElementById('room_brand_icon').value = '',document.getElementById('brand_icon_name').value = ''"></i>
                   </span>
                 </td>
                 <td width="216px">
@@ -152,6 +161,8 @@
                 <td>
                   <span class="custom-switch-description d-block my-4">
                     <%= t("modal.create_room.room_background_image") %>
+                    <i class="fas fa-undo cursor-pointer" data-toggle="tooltip" data-placement="bottom" title="<%= t('remove') %>" 
+                    onClick="document.getElementById('room_back_image').value = '',document.getElementById('back_image_name').innerText = ''"></i>
                   </span>
                 </td>
                 <td width="216px">

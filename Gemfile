@@ -47,6 +47,7 @@ gem 'tabler-rubygem', git: 'https://github.com/blindsidenetworks/tabler-rubygem.
 gem 'turbolinks', '~> 5.2.1'
 gem 'tzinfo-data', '~> 1.2021.1'
 gem 'uglifier', '~> 4.2.0'
+gem 'rest-client', '~> 2.1.0'
 
 group :production do
   gem 'hiredis', '~> 0.6.3'

@@ -180,5 +180,8 @@ module Greenlight
 
     # Default admin password
     config.admin_password_default = ENV['ADMIN_PASSWORD'] || 'administrator'
+
+    # Default Back Image API For Rooms
+    config.backimage_endpoint = "https://api.cast.vide.wiki/api/photos/?category='all'"
   end
 end

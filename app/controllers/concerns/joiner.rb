@@ -57,6 +57,10 @@ module Joiner
       opts[:record] = record_meeting
       opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
       opts[:mute_on_start] = room_setting_with_config("muteOnStart")
+      opts[:primary_color] = ''
+      opts[:secondary_color] = ''
+      opts[:brand_image] = ''
+      opts[:back_image] = ''
 
       if current_user
         redirect_to join_path(@room, current_user.name, opts, current_user.uid)
@@ -89,7 +93,11 @@ module Joiner
       meeting_logout_url: request.base_url + logout_room_path(@room),
       moderator_message: "#{invite_msg}<br> #{request.base_url + room_path(@room)}",
       host: request.host,
-      recording_default_visibility: @settings.get_value("Default Recording Visibility") == "public"
+      recording_default_visibility: @settings.get_value("Default Recording Visibility") == "public",
+      primary_color: '',
+      secondary_color: '',
+      brand_image: '',
+      back_image: ''
     }
   end
 
