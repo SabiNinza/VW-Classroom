@@ -57,10 +57,10 @@ module Joiner
       opts[:record] = record_meeting
       opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
       opts[:mute_on_start] = room_setting_with_config("muteOnStart")
-      opts[:primary_color] = ''
-      opts[:secondary_color] = ''
-      opts[:brand_image] = ''
-      opts[:back_image] = ''
+      opts[:primary_color] = @room.primary_color
+      opts[:secondary_color] = @room_settings["secondaryColor"]
+      opts[:brand_image] = url_for(@room.brand_image) if @room.brand_image.attached?
+      opts[:back_image] = root_url+'backImages/'+@room_settings["backImage"] if @room_settings["backImage"]
 
       if current_user
         redirect_to join_path(@room, current_user.name, opts, current_user.uid)
