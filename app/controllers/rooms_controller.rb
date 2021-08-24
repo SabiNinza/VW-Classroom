@@ -17,10 +17,15 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 class RoomsController < ApplicationController
+
+  require 'rest-client'
+
   include Pagy::Backend
   include Recorder
   include Joiner
   include Populator
+
+  
 
   before_action :validate_accepted_terms, unless: -> { !Rails.configuration.terms }
   before_action :validate_verified_email, except: [:show, :join],
@@ -188,6 +193,9 @@ class RoomsController < ApplicationController
       opts[:brand_image] = url_for(@room.brand_image) if @room.brand_image.attached?
       opts[:back_image] = root_url+'backImages/'+@room_settings["backImage"] if @room_settings["backImage"]
     else
+      opts[:primary_color] = ''
+      opts[:secondary_color] = ''
+      opts[:brand_image] = ''
       opts[:back_image] = ''
     end
     begin
@@ -469,4 +477,11 @@ class RoomsController < ApplicationController
     end
   end
   helper_method :room_setting_with_config
+
+  # Gets the back images for room using api
+  def back_images
+    back_image_url = "https://api.cast.video.wiki/api/photos/?category='all'" #Rails.configuration.backimage_endpoint
+    response = RestClient.get(back_image_url)
+    render json: response
+  end
 end

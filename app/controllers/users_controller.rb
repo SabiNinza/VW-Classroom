@@ -227,4 +227,9 @@ class UsersController < ApplicationController
                              @user != current_user &&
                              !current_user.admin_of?(@user, "can_manage_users")
   end
+
+
+  #
+
+
 end
