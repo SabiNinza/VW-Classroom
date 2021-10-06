@@ -18,8 +18,6 @@
 
 class RoomsController < ApplicationController
 
-  require 'rest-client'
-
   include Pagy::Backend
   include Recorder
   include Joiner
@@ -190,12 +188,12 @@ class RoomsController < ApplicationController
     if current_user.role.name === "Organization"
       opts[:primary_color] = @room.primary_color
       opts[:secondary_color] = @room_settings["secondaryColor"]
-      opts[:brand_image] = url_for(@room.brand_image) if @room.brand_image.attached?
-      opts[:back_image] = root_url+'backImages/'+@room_settings["backImage"] if @room_settings["backImage"]
+      opts[:brand_image] = @room.brand_image.attached? ? url_for(@room.brand_image) : @settings.get_value("Branding Image")
+      opts[:back_image] = @room_settings["backImage"] if @room_settings["backImage"]
     else
       opts[:primary_color] = ''
       opts[:secondary_color] = ''
-      opts[:brand_image] = ''
+      opts[:brand_image] = @settings.get_value("Branding Image")
       opts[:back_image] = ''
     end
     begin
@@ -216,11 +214,15 @@ class RoomsController < ApplicationController
     begin
       options = params[:room].nil? ? params : params[:room]
       raise "Room name can't be blank" if options[:name].blank?
-      # Update the rooms values
-      room_settings_string = create_room_settings_string(options)
+
       if room_params[:brand_image].present?
         @room.brand_image.attach(room_params[:brand_image])
+      else
+        @room.brand_image.purge
       end
+      # Update the rooms values
+      room_settings_string = create_room_settings_string(options)
+      
       @room.update_attributes(
         name: options[:name],
         room_settings: room_settings_string,
@@ -452,6 +454,9 @@ class RoomsController < ApplicationController
          .include?(File.extname(room_params[:presentation].original_filename.downcase))
   end
 
+  def primary_color
+    return Rails.configuration.primary_color
+  end
   # Gets the room setting based on the option set in the room configuration
   def room_setting_with_config(name)
     config = case name
@@ -477,11 +482,4 @@ class RoomsController < ApplicationController
     end
   end
   helper_method :room_setting_with_config
-
-  # Gets the back images for room using api
-  def back_images
-    back_image_url = "https://api.cast.video.wiki/api/photos/?category='all'" #Rails.configuration.backimage_endpoint
-    response = RestClient.get(back_image_url)
-    render json: response
-  end
 end
