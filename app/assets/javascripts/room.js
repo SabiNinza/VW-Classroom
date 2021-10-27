@@ -448,3 +448,36 @@ function clearRoomSearch() {
   $('#room-search').val(''); 
   filterRooms()
 }
+
+function joinAttendee(id,n,e,r,p,s,rp){
+  event.preventDefault();
+  n = n || document.querySelector('input.joinee-name').value;
+  let data = {"class_id":id,"name":n,"email":e,"role":r,"picture":p,"session":s};
+  $.ajax({
+    url: "https://dev.cast.api.video.wiki/api/class/joinee/details/",
+    method: "POST",
+    data: data,
+    error: function(jqXHR, textStatus, error) {
+      console.log('jqXHR:', jqXHR);
+      console.log('textStatus:', textStatus);
+      console.log('error:', error);
+    },
+    success: function(data) {
+      rp.submit();
+    }
+  })
+  //   var settings = {
+  //   "url": "https://dev.cast.api.video.wiki/api/class/joinee/details/",
+  //   "method": "POST",
+  //   "timeout": 0,
+  //   "headers": {
+  //     "Content-Type": "application/json"
+  //   },
+  //   "data": JSON.stringify({"class_id":id,"name":n,"email":e,"role":r,"picture":p,"session":s}),
+  // };
+  // $.ajax(settings).done(function (response) {
+  //   alert(response)
+  //   console.log(response);
+  //   return true;
+  // });
+}

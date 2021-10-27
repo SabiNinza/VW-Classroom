@@ -29,7 +29,7 @@
         <td>
           <div>
             <h4 contenteditable="false" class="m-0 force-text-normal room-name-text" ><%= room.name %></h4>
-            <h4 class="m-0 force-text-normal room-primarycolor-text d-none" ><%= room.primary_color %></h4>  
+            <h4 class="m-0 force-text-normal room-primarycolor-text d-none" ><%= room.primary_color %></h4>
           </div>
           <div style="display: none">
             <input class="form-control input-sm w-100 h-4 room-name-editable" value="<%= room.name %>">
@@ -71,5 +71,68 @@
         </td>
       </tbody>
     </table>
+    <div class="class-cover-image p-7 m-3 position-relative border-primary border rounded">
+      <% if r_status(room.bbb_id) %>
+        <span class="position-absolute rounded text-white" style="background: #E64980;
+        border-radius: 2px;padding: 2px 6px;right:10px;top:10px;"> LIVE </span>
+      <% end %>
+    </div>
+    <div class="mb-3 mt-5 align-items-center justify-content-between position-relative">
+      <% bc = room.primary_color || '#467fcf' %> 
+      <% att = get_Attendees(room.bbb_id) %>
+      <% if att['data'].to_a.length <= 10 %>
+        <% att['data'].to_a.each do |a| %>  
+          <% if a['role'] == 'MODERATOR' %>
+            <span data-toggle="tooltip" data-placement="bottom" title="<%= a['name'] %>" class="position-absolute rounded-circle border-secondary border text-white text-center" 
+            style="width:50px;height:50px;line-height:50px;top:-50px;left:calc(50% - 25px);background:<%= bc %>">
+              <% if a['picture'] != "" %>
+                <img src="<%= a['picture'] %>" />
+              <% else %>
+                <i class="fas fa-user"></i>
+              <% end %>
+            </span>
+          <% else %>
+            <span data-toggle="tooltip" data-placement="bottom" title="<%= a['name'] %>" class="d-inline-block position-relative rounded-circle border-secondary border text-white text-center mt-3 ml-2" 
+              style="width:50px;height:50px;line-height:50px;background:<%= bc %>">
+              <% if a['picture'] != "" %>
+                <img src="<%= a['picture'] %>" />
+              <% else %>
+                <i class="fas fa-user"></i>
+              <% end %>
+            </span>
+          <% end %>
+        <% end %>
+      <% else %>
+          <% a = att['data'].to_a.take(10) %>
+          <% a.each do |a| %>
+            <% if a['role'] == 'MODERATOR' %>
+              <span data-toggle="tooltip" data-placement="bottom" title="<%= a['name'] %>" class="position-absolute rounded-circle border-secondary border text-white text-center" 
+              style="width:50px;height:50px;line-height:50px;top:-50px;left:calc(50% - 25px);background:<%= bc %>">
+                <% if a['picture'] != "" %>
+                  <img src="<%= a['picture'] %>" />
+                <% else %>
+                  <i class="fas fa-user"></i>
+                <% end %>
+              </span>
+            <% else %>
+              <span data-toggle="tooltip" data-placement="bottom" title="<%= a['name'] %>" class="d-inline-block position-relative rounded-circle border-secondary border text-white text-center mt-3 ml-2" 
+                style="width:50px;height:50px;line-height:50px;background:<%= bc %>">
+                <% if a['picture'] != "" %>
+                  <img src="<%= a['picture'] %>" />
+                <% else %>
+                  <i class="fas fa-user"></i>
+                <% end %>
+              </span>
+            <% end %>
+          <% end %>
+          <a href="#" class="d-inline-block position-relative rounded-circle border-secondary border text-white text-center text-bold mt-3 ml-2" 
+          style="width:50px;height:50px;line-height:50px;background:<%= bc %>"
+          data-toggle="modal" data-target="#roomAttendeesListModal_<%= room.bbb_id %>" >
+         
+           +<%= att['data'].to_a.length - 10%>
+          </a>
+          <%= render "shared/modals/list_attendees_modal", attendees: att, id: room.bbb_id %>
+      <% end %>
+    </div>
   </div>
 </div>

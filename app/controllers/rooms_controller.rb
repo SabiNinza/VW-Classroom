@@ -69,6 +69,21 @@ class RoomsController < ApplicationController
     start
   end
 
+  def status(id)
+    room_running?(id)
+  end
+  helper_method :status
+
+  def attendees(id)
+    begin
+      res = RestClient.get('https://dev.cast.api.video.wiki/api/get/class/joinee/details/?class_id='+id)
+      res = JSON.parse(res.body)
+    rescue => e
+      res = {}
+    end
+  end
+  helper_method :attendees
+
   # GET /:room_uid
   def show
     @room_settings = JSON.parse(@room[:room_settings])
