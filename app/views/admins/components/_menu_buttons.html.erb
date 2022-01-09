@@ -13,7 +13,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 %>
 
-<div class="list-group list-group-transparent mb-0">
+<div class="list-group mb-0">
   <% highest_role = current_user.role %>
   <% highest_role.name %>
   <% if highest_role.get_permission("can_manage_users") || highest_role.name == "super_admin" %>

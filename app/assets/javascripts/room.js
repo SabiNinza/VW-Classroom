@@ -46,6 +46,10 @@ $(document).on('turbolinks:load', function(){
       showUpdateRoom(this)
     })
 
+    $(".update-branding").click(function(){
+      fetchBackImages();
+    })
+
     $(".delete-room").click(function() {
       showDeleteRoom(this)
     })
@@ -205,7 +209,6 @@ function showCreateRoom(target) {
     $(this).attr('style',"display:none !important")
     if($(this).children().length > 0) { $(this).children().attr('style',"display:none !important") }
   })
-  fetchBackImages()
 }
 
 function showUpdateRoom(target) {
@@ -213,9 +216,9 @@ function showUpdateRoom(target) {
   var update_path = modal.closest(".room-block").data("path")
   var settings_path = modal.data("settings-path")
   $("#create-room-name").val(modal.closest(".room-block").find(".room-name-text").text().trim())
-  let rpc = modal.closest(".room-block").find(".room-primarycolor-text").text().trim() || '#467FCF' //rpc = room primary color
-  $("#room-primary-color").val(rpc)
-  $("#selected-room-color").text(rpc).css('color',rpc);
+//  let rpc = modal.closest(".room-block").find(".room-primarycolor-text").text().trim() || '#467FCF' //rpc = room primary color
+//  $("#room-primary-color").val(rpc)
+//  $("#selected-room-color").text(rpc).css('color',rpc);
   $("#createRoomModal form").attr("action", update_path)
 
   //show all elements & their children with a update-only class
@@ -319,7 +322,7 @@ function fetchBackImages(){
           image.src = data.data[i].low_quality_url
           image.className = "mt-1 cursor-pointer all "+data.data[i].category
           image.dataset.dismiss = "modal"
-          image.dataset.target = "#createRoomModal"
+          image.dataset.target = "#roomBrandingModal"
           image.dataset.toggle = "modal"
           image.dataset.backimage = data.data[i].high_quality_url
           image.dataset.title = data.data[i].title
@@ -343,6 +346,9 @@ function chooseCategory(cat){
   for(let c of allCat){
     c.style.display = 'none'
     if(c.dataset.category == cat.toLowerCase()){
+      c.style.display = 'block'
+    }
+    if(cat.toLowerCase() === 'all'){
       c.style.display = 'block'
     }
   }
@@ -466,18 +472,4 @@ function joinAttendee(id,n,e,r,p,s,rp){
       rp.submit();
     }
   })
-  //   var settings = {
-  //   "url": "https://dev.cast.api.video.wiki/api/class/joinee/details/",
-  //   "method": "POST",
-  //   "timeout": 0,
-  //   "headers": {
-  //     "Content-Type": "application/json"
-  //   },
-  //   "data": JSON.stringify({"class_id":id,"name":n,"email":e,"role":r,"picture":p,"session":s}),
-  // };
-  // $.ajax(settings).done(function (response) {
-  //   alert(response)
-  //   console.log(response);
-  //   return true;
-  // });
 }

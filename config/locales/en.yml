@@ -563,7 +563,7 @@ en:
     recording_present: I acknowledge that this session is going to be recorded. This may include my voice and video if enabled.
     invite_participants: Invite Participants
     join: Join
-    last_session: Last session on %{session}
+    last_session: Last used%{on} %{session}
     login: Enter
     owner: Owner
     owner_banned: This room is currently unavailable
@@ -608,6 +608,7 @@ en:
       image: Image
       image_url: Profile Image URL
       roles: User Role
+      plans: Current Plan
       subtitle: Update your Account Info
       title: Account Info
       reset_password: Reset user password

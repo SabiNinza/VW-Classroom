@@ -62,7 +62,8 @@
   <body class="app-background" data-controller="<%= params[:controller] %>" data-action="<%= params[:action] %>" data-relative-root="<%= Rails.configuration.relative_url_root || "/" %>">
     <%= render "shared/header" %>
 
-    <div class="wrapper">
+    <div class="background wrapper position-relative">
+      <div class="banner"></div>
       <% if bigbluebutton_endpoint_default? %>
         <div class="alert alert-icon alert-danger text-center mb-0">
           <div class="flash alert d-inline">

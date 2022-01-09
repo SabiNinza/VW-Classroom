@@ -19,19 +19,26 @@
     <%= t("room.room_limit_exceeded", difference: @diff) %>
   </div>
 <% end %>
-<div class="background pb-1">
+<div class="pb-1 position-relative">
   <div class="container">
     <div class="row">
-      <div class="col-lg-9 col-sm-12">
-        <div id="room-title" class="display-3 form-inline <%= 'edit_hover_class' if current_user.main_room != @room %>" data-path="<%= update_settings_path(@room) %>">
-           <h1 contenteditable=false id="user-text" class="display-3 text-left mb-3 font-weight-600"><%= title(@room.name) %></h1>
+      <div class="col-lg-9 col-sm-9">
+        <div id="room-title" class="display-3 text-white form-inline <%= 'edit_hover_class' if current_user.main_room != @room %>" data-path="<%= update_settings_path(@room) %>">
+           <h1 contenteditable=false id="user-text" class="display-3 text-left mb-3 font-weight-600"><%= title(@room.name) %>
+           <% if ((@current_user.role.name === 'Organization' || @current_user.role.name === 'Single Brand'|| @current_user.role.name === 'Multi Brand' || @current_user.role.name === 'Admin') && role_custom_branding(@current_user.role)) %>
+            <span href="#" data-toggle="modal" data-target="#roomBrandingModal"  class="icon update-branding cursor-pointer">
+              <i class="fa fa-regular fa-palette text-white"></i>
+            </span>
+            <% end %>
+           </h1>
           <%# if current_user.main_room == @room %>
             <%#a class="disable-click"><i class="fas fa-home align-top home-indicator ml-2"></i></a>
           <% else %>
             <%#a><i id="edit-room" class="fa fa-edit align-top home-indicator ml-2" data-edit-room="<%= @room.uid %><%# "></i></a>
           <% end %>
+          
         </div>
-        <p class="text-left mb-6"><%= @room.sessions %> <%= t("room.sessions") %><% unless hide_recording_tables %> | <%= @recordings.length %> <%= t("room.recordings") %><% end %></p>
+        <p class="text-left mb-6 text-light"><%= @room.sessions %> <%= t("room.sessions") %><% unless hide_recording_tables %> | <%= @recordings.length %> <%= t("room.recordings") %><% end %></p>
         <% unless exceeds_limit %>
       </div>
     </div>
@@ -41,7 +48,7 @@
         <span class="input-icon-addon">
           <i class="fas fa-search"></i>
           </span>
-        <input id="room-search" type="text" placeholder="<%= t("room.search") %>" class="form-control w-100" onChange="filterRooms()" onKeyUp="filterRooms()">
+        <input id="room-search" type="text" placeholder="<%= t("room.search") %>" class="form-control w-100" onChange="filterRooms()" onKeyUp="filterRooms()" style="background: rgba(255,255,255,0.85);">
         <span id="clear-room-search" class="text-primary" onclick="clearRoomSearch()">
           <i class="fas fa-times"></i>
         </span>
@@ -93,7 +100,7 @@
       </div>
        <div class="col-lg-3 col-sm-12 force-bottom mt-5">
         <% if @room_running %>
-          <%= button_to t("room.join"), room_path(@room), class: "btn btn-primary btn-block px-7 start-button float-right", "data-disable": "", :onclick=>"return joinAttendee('"+@room.bbb_id+"','"+current_user.name+"','"+current_user.email+"','MODERATOR','"+current_user.image+"','OLD',this.form)" %>
+          <%= button_to t("room.join"), room_path(@room), class: "btn btn-primary btn-block px-7 start-button float-right", "data-disable": "", :onclick=>"return joinAttendee('"+@room.bbb_id+"','"+current_user.name+"','"+current_user.email+"','VIEWER','"+current_user.image+"','OLD',this.form)" %>
         <% else %>
           <% unless exceeds_limit %>
             <%= button_to t("room.start"), start_room_path(@room), class: "btn btn-primary btn-block px-7 start-button float-right", "data-disable": "", onclick:"return joinAttendee('"+@room.bbb_id+"','"+current_user.name+"','"+current_user.email+"','MODERATOR','"+current_user.image+"','NEW',this.form)" %>
@@ -138,6 +145,8 @@
 <%= render "shared/modals/delete_room_modal" %>
 
 <%= render "shared/modals/create_room_modal" %>
+
+<%= render "shared/modals/room_branding_modal" %>
 
 <% if preupload_allowed? %>
   <%= render "shared/modals/preupload_presentation_modal" %>

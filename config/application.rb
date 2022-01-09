@@ -185,5 +185,7 @@ module Greenlight
     config.backimage_endpoint = "https://api.cast.video.wiki/api/photos/?category='all'"
     # All primary colors for room branding
     config.primary_color = [["#467FCF","River Blue"],["#58821E","Forest Green"],["#9DCD5B","Grassland Green"],["#3BA0BE","Ocean Teal"],["#6859B4","Space Purple"],["#F2C244","Solar Yellow"],["#EA7526","Sunny Orange"],["#C6211B","Business Red"],["#F36677","Personal Pink"],["#B3B3B3","Machine Grey"]]
+    # All plans for users
+    config.plans = ['vw_plan#000','vw_plan#001','vw_plan#002']
   end
 end

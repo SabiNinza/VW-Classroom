@@ -2,6 +2,7 @@
 ###
 #
 # Author Ashwani Bhardwaj : VideoWiki
+# Description: This page is to create modal for all the last meeting attendees and their details show in a popup
 #
 ###
 %>
@@ -15,23 +16,19 @@
           </span>
         </div>
         <div class="modal-body overflow-auto" style="height: calc(100vh - 180px);">
-            <table class="w-100 text-left">
-                <% attendees['data'].to_a.each do |a| %>
-                    <tr style="border-bottom: 1px solid #467fcf;">
-                        <td>
-                            <span data-toggle="tooltip" data-placement="bottom" title="<%= a['name'] %>" class="d-inline-block position-relative rounded-circle border-primary border text-primary text-center m-3" 
+            <% attendees['data'].to_a.each do |a| %>
+                    <div class="flex align-center text-left border-secondary border-bottom">
+                        <span data-toggle="tooltip" data-placement="bottom" title="<%= a['name'] %>" class="d-inline-block position-relative rounded-circle border-primary border text-primary text-center m-3" 
                                 style="width:50px;height:50px;line-height:50px;">
                                 <% if a['picture'] != "" %>
                                 <img src="<%= a['picture'] %>" />
                                 <% else %>
                                 <i class="fas fa-user"></i>
                                 <% end %>
-                            </span>
-                        </td>
-                        <td><span class="m-3 text-primary"><%= a['name'] %></span></td>
-                    </tr>
-                <% end %>
-            </table>
+                        </span>
+                        <span class="m-3 text-primary"><%= a['name'] %></span>
+                    </div>
+            <% end %>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary create-room-button" data-toggle="modal" data-dismiss="modal">

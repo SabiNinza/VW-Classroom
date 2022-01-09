@@ -1,0 +1,28 @@
+<%
+# Custom Branding Modal for Room 
+# Author : Ashwani Bhardwaj
+# Project : VidoeWiki
+# Refrence : BigBlueButton-GreenLight
+%>
+
+<div class="modal fade" id="roomBrandingModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center">
+      <div class="modal-body">
+        <div class="card-body p-sm-6">
+          <div class="card-title">
+            <h3 class="update-only"><%= t("modal.room_settings.title") %></h3>
+          </div>
+          <% if @current_user.role.name === 'Single Brand'  %>
+            <%= render "rooms/components/branding_form", object: :user, url: update_plan_settings_path(@current_user), settings:@plan_settings  %>
+          <% elsif @current_user.role.name === 'Multi Brand' || @current_user.role.name === 'Admin' || @current_user.role.name === 'Organization' %>
+            <%= render "rooms/components/branding_form", object: :room, url: update_branding_path, settings:@room_settings  %> 
+          <% else %>
+            <%= render "rooms/components/branding_form", object: :user, url: update_plan_settings_path(@current_user), settings:@plan_settings  %>
+          <% end %>
+        </div>
+      </div>
+   </div>
+  </div>
+</div>
+<%= render "shared/modals/backimage_upload_modal" %>

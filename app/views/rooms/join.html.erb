@@ -48,13 +48,13 @@
             %>
         <span class="input-group-append">
          
-          <% (!@room_running && @anyone_can_start) ? session_status = 'NEW' : session_status = 'OLD' %>
+          <% (!@room_running && @anyone_can_start) ? (session_status = 'NEW';user_status = 'MODERATOR') : (session_status = 'OLD';user_status='VIEWER') %>
           <% if !current_user.nil? %>  
-          <button id="room-join" type="submit" onclick="joinAttendee('<%= @room.bbb_id %>','<%= current_user.name %>','<%= current_user.email %>','VIEWER','<%= current_user.image %>','<%= session_status %>',this.form)" class="btn btn-primary btn-sm px-7 form-control join-form">
+          <button id="room-join" type="submit" onclick="joinAttendee('<%= @room.bbb_id %>','<%= current_user.name %>','<%= current_user.email %>','<%= user_status %>','<%= current_user.image %>','<%= session_status %>',this.form)" class="btn btn-primary btn-sm px-7 form-control join-form">
             <%= (!@room_running && @anyone_can_start) ? t("room.start") : t("room.join") %>
           </button>
           <% else %>
-          <button id="room-join" type="submit" onclick="joinAttendee('<%= @room.bbb_id %>','','','VIEWER','','<%= session_status %>',this.form)" class="btn btn-primary btn-sm px-7 form-control join-form">
+          <button id="room-join" type="submit" onclick="joinAttendee('<%= @room.bbb_id %>','','','<%= user_status %>','','<%= session_status %>',this.form)" class="btn btn-primary btn-sm px-7 form-control join-form">
             <%= (!@room_running && @anyone_can_start) ? t("room.start") : t("room.join") %>
           </button>
           <% end %>

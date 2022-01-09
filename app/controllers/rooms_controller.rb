@@ -87,10 +87,12 @@ class RoomsController < ApplicationController
   # GET /:room_uid
   def show
     @room_settings = JSON.parse(@room[:room_settings])
+    @plan_settings = JSON.parse(@current_user[:plan_settings]) 
     @anyone_can_start = room_setting_with_config("anyoneCanStart")
     @room_running = room_running?(@room.bbb_id)
     @shared_room = room_shared_with_user
 
+   
     # If its the current user's room
     if current_user && (@room.owned_by?(current_user) || @shared_room)
       # If the user is trying to access their own room but is not allowed to
@@ -253,6 +255,30 @@ class RoomsController < ApplicationController
     redirect_back fallback_location: room_path(@room)
   end
   
+  #POST /:room_uid/update_branding
+  def update_branding
+    begin
+      options = params[:room].nil? ? params : params[:room]
+      if room_params[:brand_image].present?
+        @room.brand_image.attach(room_params[:brand_image])
+      else
+        @room.brand_image.purge
+      end
+      # Update the rooms values
+      room_branding_string = create_room_branding_string(options)
+      
+      @room.update_attributes(
+        room_settings: room_branding_string,
+        primary_color: options[:primary_color]
+      )
+      flash[:success] = I18n.t("room.update_settings_success")
+    rescue => e
+      logger.error "Support: Error in updating room branding: #{e}"
+      flash[:alert] = e
+    end
+
+    redirect_back fallback_location: room_path(@room)
+  end
   
   # GET /:room_uid/current_presentation
   def current_presentation
@@ -379,6 +405,31 @@ class RoomsController < ApplicationController
       "secondaryColor": options[:secondary_color],
       "brandImage": options[:brand_image_name],
       "backImage": options[:back_image]
+    }
+
+    room_settings.to_json
+  end
+
+  def create_room_branding_string(options)
+    room_settings = {
+      "muteOnStart": options[:mute_on_join] == "1",
+      "requireModeratorApproval": options[:require_moderator_approval] == "1",
+      "anyoneCanStart": options[:anyone_can_start] == "1",
+      "joinModerator": options[:all_join_moderator] == "1",
+      "recording": options[:recording] == "1",
+      "secondaryColor": options[:secondary_color],
+      "brandImage": options[:brand_image_name],
+      "backImage": options[:back_image]
+
+
+      # "muteOnStart": room_settings['muteOnStart'],
+      # "requireModeratorApproval": room_settings['requireModeratorApproval'],
+      # "anyoneCanStart": room_settings['anyoneCanStart'],
+      # "joinModerator": room_settings['joinModerator'],
+      # "recording": room_settings['recording'],
+      # "secondaryColor": options[:secondary_color],
+      # "brandImage": options[:brand_image_name],
+      # "backImage": options[:back_image]
     }
 
     room_settings.to_json
