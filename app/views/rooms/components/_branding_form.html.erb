@@ -68,7 +68,7 @@
       <span class="px-3 py-1 cursor-pointer" style="background:<%= pc[0] %>" onclick="setRoomPrimaryColor('<%= pc[0] %>')"></span>
       <% end %>
       <span class="d-flex align-items-center justify-content-between position-relative">
-      <span id="selected-room-color" class="mt-2 d-block font-weight-bold" style="color:<%= settings['primaryColor'] %>"><%= settings['primaryColor'] ? settings['primaryColor'] : "#6859B4"  %></span>
+      <span id="selected-room-color" class="mt-2 d-block font-weight-bold" style="color:<%= settings['primaryColor'] ? settings['primaryColor'] :'#6859B4' %>"><%= settings['primaryColor'] ? settings['primaryColor'] : "#6859B4"  %></span>
       <span class="input-icon-addon allow-icon-click cursor-pointer">
           <i class="fas fa-undo mt-2 cursor-pointer" data-toggle="tooltip" data-placement="left" title="<%= t('remove') %>" 
           onClick="document.getElementById('room-primary-color').value = '#6859B4';
@@ -76,7 +76,7 @@
                   document.getElementById('selected-room-color').style.color = '#6859B4'"></i>
       </span>
       </span>
-      <%= f.hidden_field :primary_color, id: "room-primary-color", value: "#6859B4" %>
+      <%= f.hidden_field :primary_color, id: "room-primary-color", value:settings['primaryColor']?settings['primaryColor']:'#6859B4' %>
   </span>
   </td>
   </tr>
@@ -88,10 +88,10 @@
       </span>
   </td>
   <td>
-      <span class="float-right d-block mt-2 position-relative">
-      <%= f.text_field :secondary_color, id: "room_secondary_color", class: "form-control text-left", value: settings['secondaryColor'], autocomplete: :off %>
+      <span class="d-block mt-2 position-relative">
+      <%= f.text_field :secondary_color, id: "secondary_color", class: "form-control text-left",autocomplete: :off, value:settings['secondaryColor'].present? ?settings['secondaryColor']:'' %>
       <span class="input-icon-addon allow-icon-click cursor-pointer">
-          <i class="fas fa-undo" data-toggle="tooltip" data-placement="left" title="<%= t('remove') %>" onClick="document.getElementById('room_secondary_color').value = ''"></i>
+          <i class="fas fa-undo" data-toggle="tooltip" data-placement="left" title="<%= t('remove') %>" onClick="document.getElementById('secondary_color').value = ''"></i>
       </span>
       </span>
   </td>
@@ -106,16 +106,16 @@
   <td width="216px">
       <div class="my-2 position-relative d-flex">
       
-          <%= f.label :brand_icon, id:'brand_icon_lbl', class:"m-0 cursor-pointer input-icon-addon allow-icon-click text-center" do %>
-          <i class="fas fa-upload mr-1"></i>
-          <% end %>
-          <%= f.file_field :brand_image, id: "user_brand_icon", class: "form-control text-center d-none", onChange:"selectBrandImage('user_brand_icon','brand_icon_name')" %>
+      <label for="brand_icon" id="brand_icon_lbl" class="m-0 cursor-pointer input-icon-addon allow-icon-click text-center">
+        <i class="fas fa-upload mr-1"></i>
+      </label>
+      <%= f.file_field :brand_image, id: "brand_icon", class: "form-control text-center d-none", onChange:"selectBrandImage('brand_icon','brand_icon_name')" %>
       
-      <%= f.text_field :brand_image_name, id:"brand_icon_name", class:"form-control d-block border-0 ml-6 mr-7", value: settings['brandImage'] %>
+      <%= f.text_field :brand_image_name, id:"brand_icon_name", class:"form-control d-block border-0 ml-6 mr-7", value:settings['brandImage']?settings['brandImage']:'' %>
       <span class="input-icon-addon allow-icon-click cursor-pointer">
           <i class="fas fa-info mr-2" data-toggle="tooltip" data-placement="left" title="<%= t('modal.create_room.room_brand_icon_info') %>"></i>
           <i class="fas fa-undo cursor-pointer mr-2" data-toggle="tooltip" data-placement="bottom" title="<%= t('remove') %>" 
-          onClick="document.getElementById('room_brand_icon').value = '',document.getElementById('brand_icon_name').value = ''"></i>
+          onClick="document.getElementById('brand_icon').value = '',document.getElementById('brand_icon_name').value = ''"></i>
       </span>
       </div>
   </td>
@@ -134,11 +134,11 @@
           <i class="fas fa-upload mr-1"></i>
           </span>
       </span>
-      <%= f.text_field :back_image, id: "room_back_image", class: "form-control border-0 mx-6", value: "", readonly: true %>
+      <%= f.text_field :back_image, id:"back_image", class: "form-control border-0 mx-6", value:settings['backImage']?settings['backImage']:'', readonly: true %>
       <span class="d-none mx-1" id="back_image_name"></span>
       <span class="input-icon-addon allow-icon-click cursor-pointer">
           <i class="fas fa-undo cursor-pointer" data-toggle="tooltip" data-placement="bottom" title="<%= t('remove') %>" 
-          onClick="document.getElementById('room_back_image').value = '',document.getElementById('back_image_name').innerText = ''"></i>
+          onClick="document.getElementById('back_image').value = '',document.getElementById('back_image_name').innerText = ''"></i>
       </span>
       </div>
   </td>

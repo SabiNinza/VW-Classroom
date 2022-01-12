@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_08_100633) do
+ActiveRecord::Schema.define(version: 2022_01_12_061022) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -147,7 +147,7 @@ ActiveRecord::Schema.define(version: 2022_01_08_100633) do
     t.integer "role_id"
     t.datetime "last_login"
     t.string "plan", default: "vw_plan#000"
-    t.string "plan_settings", default: "{\n      \"muteOnStart\": false,\n      \"requireModeratorApproval\": false,\n      \"anyoneCanStart\": false,\n      \"joinModerator\": false,\n      \"recording\": false,\n      \"secondaryColor\": \"\",\n      \"brandImage\": \"\"\n      \"backImage\": \"\"\n    }"
+    t.string "plan_settings", default: "{\"muteOnStart\":false,\"requireModeratorApproval\":false,\"anyoneCanStart\":false,\"joinModerator\":false,\"recording\":false,\"primaryColor\":\"#6859B4\",\"secondaryColor\":\" \",\"brandImage\":\" \",\"backImage\":\" \"}"
     t.index ["created_at"], name: "index_users_on_created_at"
     t.index ["deleted"], name: "index_users_on_deleted"
     t.index ["email"], name: "index_users_on_email"

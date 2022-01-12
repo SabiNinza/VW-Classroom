@@ -137,11 +137,11 @@ class UsersController < ApplicationController
 
   def create_plan_settings_string(options)
     plan_settings = {
-      "muteOnStart": options[:mute_on_join],
-      "requireModeratorApproval": options[:require_moderator_approval],
-      "anyoneCanStart": options[:anyone_can_start],
-      "joinModerator": options[:all_join_moderator],
-      "recording": options[:recording],
+      "muteOnStart": options[:mute_on_join] == "1",
+      "requireModeratorApproval": options[:require_moderator_approval] == "1",
+      "anyoneCanStart": options[:anyone_can_start] == "1",
+      "joinModerator": options[:all_join_moderator] == "1",
+      "recording": options[:recording] == "1",
       "primaryColor": options[:primary_color],
       "secondaryColor": options[:secondary_color],
       "brandImage": options[:brand_image_name],

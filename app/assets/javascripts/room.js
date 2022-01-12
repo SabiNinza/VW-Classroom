@@ -186,10 +186,10 @@ function showCreateRoom(target) {
   $("#create-room-name").val("")
   $("#create-room-access-code").text(getLocalizedString("modal.create_room.access_code_placeholder"))
   $("#room_access_code").val(null)
-  $("#room_secondary_color").val(null)
-  $("#brand_icon_name").val(null)
-  $("#back_image_name").text(null)
-  $("#room_back_image").val(null)
+  // $("#room_secondary_color").val(null)
+  // $("#brand_icon_name").val(null)
+  // $("#back_image_name").text(null)
+  // $("#room_back_image").val(null)
 
   $("#createRoomModal form").attr("action", $("body").data('relative-root'))
   $("#room_mute_on_join").prop("checked", $("#room_mute_on_join").data("default"))
@@ -233,8 +233,8 @@ function showUpdateRoom(target) {
     if($(this).children().length > 0) { $(this).children().attr('style',"display:none !important") }
   })
 
-  updateCurrentSettings(settings_path)
-  fetchBackImages()
+ // updateCurrentSettings(settings_path)
+ // fetchBackImages()
   var accessCode = modal.closest(".room-block").data("room-access-code")
 
   if(accessCode){
@@ -275,7 +275,7 @@ function selectBrandImage(sourceID,targetID){
 function selectBackImage(targetID){
   let title = this.dataset.title;
   let backImage = this.dataset.backimage;
-  document.getElementById("room_back_image").value = backImage;
+  document.getElementById("back_image").value = backImage;
   document.getElementById(targetID).innerText = title;
 }
 
