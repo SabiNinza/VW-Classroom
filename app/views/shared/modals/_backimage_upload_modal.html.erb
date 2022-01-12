@@ -9,18 +9,22 @@
 <div class="modal fade overflow-auto" id="uploadBackImageModal" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content text-center">
-        <div class="modal-header">Choose Background Image</div>
-        <div class="modal-body overflow-auto" style="height: calc(100vh - 180px);">
-         
+        <div class="modal-header">
+          <script src="//embed.typeform.com/next/embed.js"></script>
+          <span class="m-0 cursor-pointer allow-icon-click text-center" data-tf-popup="VcW0xiVY">
+            <i class="fas fa-upload mr-1"></i>
+          </span>
           <div>
-            <% backimages = Dir.glob("public/backImages/*.png") %>
-            <% backimages.each do |image| %>
-                <%= image_tag "/backImages/#{image.split('/').last}", class: 'mt-1 cursor-pointer',data: { dismiss: "modal", target: "#createRoomModal", toggle: "modal", backimage: "#{image.split('/').last}"}, onclick:"selectBackImage(this,'back_image_name')" %>
-            <% end %>
+          <% pColors = Rails.configuration.primary_color %>
+          <span class="px-3 py-1 cursor-pointer" data-toggle="tooltip" data-placement="bottom" title="all" onclick="chooseCategory('all')">All</span>
+          <% pColors.each do |color| %>
+            <span class="px-3 py-1 cursor-pointer" style="background:<%= color[0] %>" data-toggle="tooltip" data-placement="bottom" title="<%= color[1] %>" onclick="chooseCategory('<%= color[1] %>')"></span>
+          <% end %>  
           </div>
         </div>
+        <div id="backImageCollection" class="modal-body overflow-auto" style="height: calc(100vh - 180px);"></div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary create-room-button" data-toggle="modal" data-target="#createRoomModal" data-dismiss="modal">
+            <button type="button" class="btn btn-secondary create-room-button" data-toggle="modal" data-target="#roomBrandingModal" data-dismiss="modal">
                 <%= t("cancel") %>
             </button>
         </div>

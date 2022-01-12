@@ -46,6 +46,10 @@ $(document).on('turbolinks:load', function(){
       showUpdateRoom(this)
     })
 
+    $(".update-branding").click(function(){
+      fetchBackImages();
+    })
+
     $(".delete-room").click(function() {
       showDeleteRoom(this)
     })
@@ -182,6 +186,10 @@ function showCreateRoom(target) {
   $("#create-room-name").val("")
   $("#create-room-access-code").text(getLocalizedString("modal.create_room.access_code_placeholder"))
   $("#room_access_code").val(null)
+  // $("#room_secondary_color").val(null)
+  // $("#brand_icon_name").val(null)
+  // $("#back_image_name").text(null)
+  // $("#room_back_image").val(null)
 
   $("#createRoomModal form").attr("action", $("body").data('relative-root'))
   $("#room_mute_on_join").prop("checked", $("#room_mute_on_join").data("default"))
@@ -208,9 +216,9 @@ function showUpdateRoom(target) {
   var update_path = modal.closest(".room-block").data("path")
   var settings_path = modal.data("settings-path")
   $("#create-room-name").val(modal.closest(".room-block").find(".room-name-text").text().trim())
-  let rpc = modal.closest(".room-block").find(".room-primarycolor-text").text().trim() || '#467FCF' //rpc = room primary color
-  $("#room-primary-color").val(rpc)
-  $("#selected-room-color").text(rpc).css('color',rpc);
+//  let rpc = modal.closest(".room-block").find(".room-primarycolor-text").text().trim() || '#467FCF' //rpc = room primary color
+//  $("#room-primary-color").val(rpc)
+//  $("#selected-room-color").text(rpc).css('color',rpc);
   $("#createRoomModal form").attr("action", update_path)
 
   //show all elements & their children with a update-only class
@@ -225,8 +233,8 @@ function showUpdateRoom(target) {
     if($(this).children().length > 0) { $(this).children().attr('style',"display:none !important") }
   })
 
-  updateCurrentSettings(settings_path)
-
+ // updateCurrentSettings(settings_path)
+ // fetchBackImages()
   var accessCode = modal.closest(".room-block").data("room-access-code")
 
   if(accessCode){
@@ -264,10 +272,11 @@ function selectBrandImage(sourceID,targetID){
   document.getElementById(targetID).value = fileName;
   document.getElementById(targetID).text = fileName;
 }
-function selectBackImage(elem,targetID){
-  let backImage = elem.dataset.backimage;
-  document.getElementById("room_back_image").value = backImage;
-  document.getElementById(targetID).innerText = backImage;
+function selectBackImage(targetID){
+  let title = this.dataset.title;
+  let backImage = this.dataset.backimage;
+  document.getElementById("back_image").value = backImage;
+  document.getElementById(targetID).innerText = title;
 }
 
 function generateAccessCode(){
@@ -298,7 +307,52 @@ function setRoomPrimaryColor(pc){
   $("#room-primary-color").val(pc);
   $("#selected-room-color").text(pc).css('color',pc);
 }
-
+// fetch back images using api
+function fetchBackImages(){
+  fetch('https://api.cast.video.wiki/api/photos/?category=all')
+    .then(res => res.json())
+    .then(data => {
+      if(data.data.length){
+        const imgContainer = document.createElement('div')
+        for(let i=0; i<data.data.length;i++){
+          const imgHolder = document.createElement('div')
+          imgHolder.className = "position-relative cat-image-holder"
+          imgHolder.dataset.category = data.data[i].category
+          const image = document.createElement('img')
+          image.src = data.data[i].low_quality_url
+          image.className = "mt-1 cursor-pointer all "+data.data[i].category
+          image.dataset.dismiss = "modal"
+          image.dataset.target = "#roomBrandingModal"
+          image.dataset.toggle = "modal"
+          image.dataset.backimage = data.data[i].high_quality_url
+          image.dataset.title = data.data[i].title
+          image.addEventListener('click',selectBackImage.bind(image,'back_image_name'),false)
+          imgHolder.appendChild(image)
+          const details = document.createElement('p')
+          details.className = "position-absolute m-0 p-2 text-white text-right"
+          details.innerText = "Photo Credit : "+data.data[i].credit
+          $(details).css({'font-weight':'bold','right':0,'left':0,'bottom':0,'background':'rgba(0,0,0,0.7)','font-style':'italic'})
+          imgHolder.appendChild(details)
+          imgContainer.appendChild(imgHolder)
+        }
+        $(imgContainer).appendTo($("#backImageCollection"))
+      }
+    }).
+    catch(error => {throw error;})
+}
+// show and hide images on click according to category
+function chooseCategory(cat){
+  let allCat = document.getElementsByClassName('cat-image-holder')
+  for(let c of allCat){
+    c.style.display = 'none'
+    if(c.dataset.category == cat.toLowerCase()){
+      c.style.display = 'block'
+    }
+    if(cat.toLowerCase() === 'all'){
+      c.style.display = 'block'
+    }
+  }
+}
 // Get list of users shared with and display them
 function displaySharedUsers(path) {
   $.get(path, function(users) {
@@ -399,4 +453,23 @@ function filterRooms() {
 function clearRoomSearch() {
   $('#room-search').val(''); 
   filterRooms()
+}
+
+function joinAttendee(id,n,e,r,p,s,rp){
+  event.preventDefault();
+  n = n || document.querySelector('input.joinee-name').value;
+  let data = {"class_id":id,"name":n,"email":e,"role":r,"picture":p,"session":s};
+  $.ajax({
+    url: "https://dev.cast.api.video.wiki/api/class/joinee/details/",
+    method: "POST",
+    data: data,
+    error: function(jqXHR, textStatus, error) {
+      console.log('jqXHR:', jqXHR);
+      console.log('textStatus:', textStatus);
+      console.log('error:', error);
+    },
+    success: function(data) {
+      rp.submit();
+    }
+  })
 }

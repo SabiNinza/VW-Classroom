@@ -1,0 +1,151 @@
+<%
+# Custom Branding Form for Room 
+# Author : Ashwani Bhardwaj
+# Project : VidoeWiki
+# Refrence : BigBlueButton-GreenLight
+%>
+
+
+<div>
+<%= form_for(object, url: url ) do |f| %>
+  <%= hidden_field_tag :setting, "account" %>
+  <% mute = room_configuration("Room Configuration Mute On Join") %>
+  <% if mute != "disabled" %>
+    <label class="custom-switch pl-0 mt-3 mb-3 w-100 text-left d-inline-block <%= "enabled-setting" if mute == "enabled" %>">
+      <span class="custom-switch-description"><%= t("modal.room_settings.mute")%></span>
+      <%= f.check_box :mute_on_join, class: "custom-switch-input", data: { default: mute == "enabled" }, checked: settings['muteOnStart'] ? settings['muteOnStart'] : false %>
+      <span class="custom-switch-indicator float-right cursor-pointer"></span>
+    </label>
+  <% end %>
+
+  <% require_approval = room_configuration("Room Configuration Require Moderator") %>
+  <% if require_approval != "disabled" %>
+    <label class="custom-switch pl-0 mt-3 mb-3 w-100 text-left d-inline-block <%= "enabled-setting" if require_approval == "enabled" %>">
+      <span class="custom-switch-description"><%= t("modal.room_settings.require_approval")%></span>
+      <%= f.check_box :require_moderator_approval, class: "custom-switch-input", data: { default: require_approval == "enabled" }, checked: settings['requireModeratorApproval'] ? settings['requireModeratorApproval'] : false  %>
+      <span class="custom-switch-indicator float-right cursor-pointer"></span>
+    </label>
+  <% end %>
+  
+  <% any_start = room_configuration("Room Configuration Allow Any Start") %>
+  <% if any_start != "disabled" %>
+    <label class="custom-switch pl-0 mt-3 mb-3 w-100 text-left d-inline-block <%= "enabled-setting" if any_start == "enabled" %>">
+      <span class="custom-switch-description"><%= t("modal.room_settings.start")%></span>
+      <%= f.check_box :anyone_can_start, class: "custom-switch-input", data: { default: any_start == "enabled" }, checked: settings['anyoneCanStart'] ? settings['anyoneCanStart'] : false %>
+      <span class="custom-switch-indicator float-right cursor-pointer"></span>
+    </label>
+  <% end %>
+  <% moderator = room_configuration("Room Configuration All Join Moderator") %>
+  <% if moderator != "disabled" %>
+    <label class="custom-switch pl-0 mt-3 mb-3 w-100 text-left d-inline-block <%= "enabled-setting" if moderator == "enabled" %>">
+      <span class="custom-switch-description"><%= t("modal.room_settings.join_moderator")%></span>
+      <%= f.check_box :all_join_moderator, class: "custom-switch-input", data: { default: moderator == "enabled" }, checked: settings['joinModerator'] ? settings['joinModerator'] : false %>
+      <span class="custom-switch-indicator float-right cursor-pointer"></span>
+    </label>
+  <% end %>
+  <% recording = room_configuration("Room Configuration Recording") %>
+  <% if recording_consent_required? && recording != "disabled" %>
+    <label class="custom-switch pl-0 mt-3 mb-3 w-100 text-left d-inline-block <%= "enabled-setting" if recording == "enabled" %>">
+      <span class="custom-switch-description"><%= t("modal.room_settings.recording")%></span>
+      <%= f.check_box :recording, class: "not-running-only custom-switch-input", data: { default: recording == "enabled" }, checked: settings['recording'] ? settings['recording'] : false %>
+      <span class="custom-switch-indicator not-running-only float-right cursor-pointer"></span>
+  </label>
+  <% end %>
+  
+  <table class="w-100 text-left mt-2">
+  <% # Room Primary Theme Color Select/Update %>
+  <tr>
+  <td>
+  <span class="custom-switch-description d-block mb-5">
+      <%= t("modal.create_room.room_primary_color") %>
+  </span>
+  </td>
+  <td>
+  <span class="float-right d-block">
+      <% # E4D033 - Previous Yellow Color Now Not In List %>
+      <% pColors = Rails.configuration.primary_color %> 
+      <% pColors.each do |pc| %>
+      <span class="px-3 py-1 cursor-pointer" style="background:<%= pc[0] %>" onclick="setRoomPrimaryColor('<%= pc[0] %>')"></span>
+      <% end %>
+      <span class="d-flex align-items-center justify-content-between position-relative">
+      <span id="selected-room-color" class="mt-2 d-block font-weight-bold" style="color:<%= settings['primaryColor'] ? settings['primaryColor'] :'#6859B4' %>"><%= settings['primaryColor'] ? settings['primaryColor'] : "#6859B4"  %></span>
+      <span class="input-icon-addon allow-icon-click cursor-pointer">
+          <i class="fas fa-undo mt-2 cursor-pointer" data-toggle="tooltip" data-placement="left" title="<%= t('remove') %>" 
+          onClick="document.getElementById('room-primary-color').value = '#6859B4';
+                  document.getElementById('selected-room-color').innerText = '#6859B4';
+                  document.getElementById('selected-room-color').style.color = '#6859B4'"></i>
+      </span>
+      </span>
+      <%= f.hidden_field :primary_color, id: "room-primary-color", value:settings['primaryColor']?settings['primaryColor']:'#6859B4' %>
+  </span>
+  </td>
+  </tr>
+  <% # Room Secondary Theme Color Select/Update %>
+  <tr>
+  <td>
+      <span class="custom-switch-description d-block mt-2">
+      <%= t("modal.create_room.room_secondary_color") %>
+      </span>
+  </td>
+  <td>
+      <span class="d-block mt-2 position-relative">
+      <%= f.text_field :secondary_color, id: "secondary_color", class: "form-control text-left",autocomplete: :off, value:settings['secondaryColor'].present? ?settings['secondaryColor']:'' %>
+      <span class="input-icon-addon allow-icon-click cursor-pointer">
+          <i class="fas fa-undo" data-toggle="tooltip" data-placement="left" title="<%= t('remove') %>" onClick="document.getElementById('secondary_color').value = ''"></i>
+      </span>
+      </span>
+  </td>
+  </tr>
+  <% # Room Brand Image Select/Update%>
+  <tr>
+  <td>
+      <span class="custom-switch-description d-block my-4">
+      <%= t("modal.create_room.room_brand_icon") %>
+      </span>
+  </td>
+  <td width="216px">
+      <div class="my-2 position-relative d-flex">
+      
+      <label for="brand_icon" id="brand_icon_lbl" class="m-0 cursor-pointer input-icon-addon allow-icon-click text-center">
+        <i class="fas fa-upload mr-1"></i>
+      </label>
+      <%= f.file_field :brand_image, id: "brand_icon", class: "form-control text-center d-none", onChange:"selectBrandImage('brand_icon','brand_icon_name')" %>
+      
+      <%= f.text_field :brand_image_name, id:"brand_icon_name", class:"form-control d-block border-0 ml-6 mr-7", value:settings['brandImage']?settings['brandImage']:'' %>
+      <span class="input-icon-addon allow-icon-click cursor-pointer">
+          <i class="fas fa-info mr-2" data-toggle="tooltip" data-placement="left" title="<%= t('modal.create_room.room_brand_icon_info') %>"></i>
+          <i class="fas fa-undo cursor-pointer mr-2" data-toggle="tooltip" data-placement="bottom" title="<%= t('remove') %>" 
+          onClick="document.getElementById('brand_icon').value = '',document.getElementById('brand_icon_name').value = ''"></i>
+      </span>
+      </div>
+  </td>
+  </tr>
+  <% # Room Back Image Select/Update%>
+  <tr>
+  <td>
+      <span class="custom-switch-description d-block my-4">
+      <%= t("modal.create_room.room_background_image") %>
+      </span>
+  </td>
+  <td width="216px">
+      <div class="my-2 position-relative d-flex">
+      <span class="input-icon-addon allow-icon-click cursor-pointer">
+          <span id="back_image_lbl" class="m-0 cursor-pointer input-icon-addon allow-icon-click text-center" data-toggle="modal" data-target="#uploadBackImageModal" data-dismiss="modal">
+          <i class="fas fa-upload mr-1"></i>
+          </span>
+      </span>
+      <%= f.text_field :back_image, id:"back_image", class: "form-control border-0 mx-6", value:settings['backImage']?settings['backImage']:'', readonly: true %>
+      <span class="d-none mx-1" id="back_image_name"></span>
+      <span class="input-icon-addon allow-icon-click cursor-pointer">
+          <i class="fas fa-undo cursor-pointer" data-toggle="tooltip" data-placement="bottom" title="<%= t('remove') %>" 
+          onClick="document.getElementById('back_image').value = '',document.getElementById('back_image_name').innerText = ''"></i>
+      </span>
+      </div>
+  </td>
+  </tr>
+  </table>
+  <div class="mt-4">
+    <%= f.submit t("update"), class: "update-only btn btn-primary create-room-button" %>
+  </div>
+<% end %>
+</div>

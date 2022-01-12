@@ -18,8 +18,6 @@
 
 class RoomsController < ApplicationController
 
-  require 'rest-client'
-
   include Pagy::Backend
   include Recorder
   include Joiner
@@ -71,6 +69,21 @@ class RoomsController < ApplicationController
     start
   end
 
+  def status(id)
+    room_running?(id)
+  end
+  helper_method :status
+
+  def attendees(id)
+    begin
+      res = RestClient.get('https://dev.cast.api.video.wiki/api/get/class/joinee/details/?class_id='+id)
+      res = JSON.parse(res.body)
+    rescue => e
+      res = {}
+    end
+  end
+  helper_method :attendees
+
   # GET /:room_uid
   def show
     @room_settings = JSON.parse(@room[:room_settings])
@@ -80,6 +93,9 @@ class RoomsController < ApplicationController
 
     # If its the current user's room
     if current_user && (@room.owned_by?(current_user) || @shared_room)
+      if @current_user[:plan_settings].present?
+        @plan_settings = JSON.parse(@current_user[:plan_settings])
+      end
       # If the user is trying to access their own room but is not allowed to
       if @room.owned_by?(current_user) && !current_user.role.get_permission("can_create_rooms")
         return redirect_to cant_create_rooms_path
@@ -94,7 +110,6 @@ class RoomsController < ApplicationController
       @pagy, @recordings = pagy_array(recs)
     else
       return redirect_to root_path, flash: { alert: I18n.t("room.invalid_provider") } if incorrect_user_domain
-
       show_user_join
     end
   end
@@ -184,18 +199,24 @@ class RoomsController < ApplicationController
 
     # Include the user's choices for the room settings
     @room_settings = JSON.parse(@room[:room_settings])
+    @plan_settings = JSON.parse(@current_user[:plan_settings])
     opts[:mute_on_start] = room_setting_with_config("muteOnStart")
     opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
     opts[:record] = record_meeting
-    if current_user.role.name === "Organization"
+    if current_user.role.name === "Single Brand"
+      opts[:primary_color] = @plan_settings['primaryColor']
+      opts[:secondary_color] = @plan_settings["secondaryColor"]
+      opts[:brand_image] = current_user.brand_image.attached? ? url_for(current_user.brand_image) : @settings.get_value("Branding Image")
+      opts[:back_image] = @plan_settings["backImage"] if @plan_settings["backImage"]
+    elsif current_user.role.name === "Organization" || current_user.role.name === "Multi Brand" || current_user.role.name === "Admin"
       opts[:primary_color] = @room.primary_color
       opts[:secondary_color] = @room_settings["secondaryColor"]
-      opts[:brand_image] = url_for(@room.brand_image) if @room.brand_image.attached?
-      opts[:back_image] = root_url+'backImages/'+@room_settings["backImage"] if @room_settings["backImage"]
+      opts[:brand_image] = @room.brand_image.attached? ? url_for(@room.brand_image) : @settings.get_value("Branding Image")
+      opts[:back_image] = @room_settings["backImage"] if @room_settings["backImage"]
     else
       opts[:primary_color] = ''
       opts[:secondary_color] = ''
-      opts[:brand_image] = ''
+      opts[:brand_image] = @settings.get_value("Branding Image")
       opts[:back_image] = ''
     end
     begin
@@ -216,16 +237,11 @@ class RoomsController < ApplicationController
     begin
       options = params[:room].nil? ? params : params[:room]
       raise "Room name can't be blank" if options[:name].blank?
+
       # Update the rooms values
-      room_settings_string = create_room_settings_string(options)
-      if room_params[:brand_image].present?
-        @room.brand_image.attach(room_params[:brand_image])
-      end
       @room.update_attributes(
         name: options[:name],
-        room_settings: room_settings_string,
         access_code: options[:access_code],
-        primary_color: options[:primary_color]
       )
       flash[:success] = I18n.t("room.update_settings_success")
     rescue => e
@@ -236,6 +252,30 @@ class RoomsController < ApplicationController
     redirect_back fallback_location: room_path(@room)
   end
   
+  #POST /:room_uid/update_branding
+  def update_branding
+    begin
+      options = params[:room].nil? ? params : params[:room]
+      if room_params[:brand_image].present?
+        @room.brand_image.attach(room_params[:brand_image])
+      else
+        @room.brand_image.purge
+      end
+      # Update the rooms values
+      room_branding_string = create_room_settings_string(options)
+      
+      @room.update_attributes(
+        room_settings: room_branding_string,
+        primary_color: options[:primary_color]
+      )
+      flash[:success] = I18n.t("room.update_settings_success")
+    rescue => e
+      logger.error "Support: Error in updating room branding: #{e}"
+      flash[:alert] = e
+    end
+
+    redirect_back fallback_location: room_path(@room)
+  end
   
   # GET /:room_uid/current_presentation
   def current_presentation
@@ -359,6 +399,7 @@ class RoomsController < ApplicationController
       "anyoneCanStart": options[:anyone_can_start] == "1",
       "joinModerator": options[:all_join_moderator] == "1",
       "recording": options[:recording] == "1",
+      "primaryColor": options[:primary_color],
       "secondaryColor": options[:secondary_color],
       "brandImage": options[:brand_image_name],
       "backImage": options[:back_image]
@@ -452,6 +493,9 @@ class RoomsController < ApplicationController
          .include?(File.extname(room_params[:presentation].original_filename.downcase))
   end
 
+  def primary_color
+    return Rails.configuration.primary_color
+  end
   # Gets the room setting based on the option set in the room configuration
   def room_setting_with_config(name)
     config = case name
@@ -477,11 +521,4 @@ class RoomsController < ApplicationController
     end
   end
   helper_method :room_setting_with_config
-
-  # Gets the back images for room using api
-  def back_images
-    back_image_url = "https://api.cast.video.wiki/api/photos/?category='all'" #Rails.configuration.backimage_endpoint
-    response = RestClient.get(back_image_url)
-    render json: response
-  end
 end
