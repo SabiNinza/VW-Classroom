@@ -203,13 +203,13 @@ class RoomsController < ApplicationController
     opts[:mute_on_start] = room_setting_with_config("muteOnStart")
     opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
     opts[:record] = record_meeting
-    if current_user.role.name === "Single Brand"
+    if current_user.role.get_permission("can_custom_branding")
       opts[:primary_color] = @plan_settings['primaryColor']
       opts[:secondary_color] = @plan_settings["secondaryColor"]
       opts[:brand_image] = current_user.brand_image.attached? ? url_for(current_user.brand_image) : @settings.get_value("Branding Image")
       opts[:back_image] = @plan_settings["backImage"] if @plan_settings["backImage"]
-    elsif current_user.role.name === "Organization" || current_user.role.name === "Multi Brand" || current_user.role.name === "Admin"
-      opts[:primary_color] = @room.primary_color
+    elsif current_user.role.get_permission("can_full_custom_branding")
+      opts[:primary_color] = @room.primary_color? ? @room.primary_color : @room_settings["primaryColor"]
       opts[:secondary_color] = @room_settings["secondaryColor"]
       opts[:brand_image] = @room.brand_image.attached? ? url_for(@room.brand_image) : @settings.get_value("Branding Image")
       opts[:back_image] = @room_settings["backImage"] if @room_settings["backImage"]
