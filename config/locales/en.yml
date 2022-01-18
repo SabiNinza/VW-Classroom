@@ -152,7 +152,8 @@ en:
       new_role: Create a new role
       role_has_users: This role is assigned to %{user_count} accounts. Please remove all accounts from this role before deleting it.
       title: Roles
-      custom_branding: Allow users with this role to use custom branding
+      single_branding: Allow user single organization branding
+      multi_branding: Allow user multi organization branding
       promote_email: Send an email to users when they are assigned this role
       demote_email: Send an email to users when they are removed from this role
       edit_site_settings: Allow users with this role to edit site settings
