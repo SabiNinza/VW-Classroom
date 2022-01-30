@@ -67,7 +67,7 @@
     <% sorted_formats = recording[:playbacks].sort_by! { |p| p[:type] } %>
     <% sorted_formats.each do |p| %>
   <%= link_to t("recording.format.#{p[:type]}"), p[:url], class: "btn btn-sm btn-primary", target: "_blank" %>
-<%= link_to "Edit","https://dev.videowiki.pt/studio?meetingId="+recording[:recordID],class:"btn btn-sm btn-primary", target: "_blank" %>
+<%= link_to "Edit","https://video.wiki/studio?meetingId="+recording[:recordID],class:"btn btn-sm btn-primary", target: "_blank" %>
     <% end %>
   </td>
   <td class="text-center">
@@ -84,6 +84,10 @@
         <% end %>
         <a href="" data-toggle="modal" data-target="#deleteRecordingModal" data-path="<%= delete_recording_path(meetingID: recording[:meetingID], record_id: recording[:recordID]) %>" class="delete-rec dropdown-item">
           <i class="dropdown-icon far fa-trash-alt"></i> <%= t("delete") %>
+        </a>
+        <div class="dropdown-divider"></div>
+        <a href="/presentation/<%= recording[:recordID] %>/video.mp4" class="dropdown-item" download="<%= recording[:name] %>" target="_blank">
+          <i class="dropdown-icon fas fa-download"></i><%= t('download') %>
         </a>
       </div>
     </div>

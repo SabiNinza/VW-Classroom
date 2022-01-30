@@ -58,8 +58,11 @@
 }
 
 .room-block {
+  min-height: 203px;
+  max-height: 203px;
+  height: 203px;
   &:not(.current) {
-    .stamp {
+    .stamp,.class-cover-image {
       opacity: 0.5;
     }
   }
@@ -143,4 +146,25 @@
   &:hover {
     cursor: pointer;
   }
+}
+.attendee-list{
+  height: 112px;
+}
+.left-overlap{
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  margin-left: -17px;
+  font-weight: bold;
+  z-index: 0;
+  &:hover {
+    top: -10px !important;
+    z-index: 1;
+    transition: top ease-in-out 1s;
+  }
+
+  &::first-of-type {
+    margin-left: 0px;
+  }
+  
 }

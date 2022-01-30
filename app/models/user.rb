@@ -52,6 +52,8 @@ class User < ApplicationRecord
   # We don't want to require password validations on all accounts.
   has_secure_password(validations: false)
 
+  has_one_attached :brand_image
+
   class << self
     include AuthValues
 

@@ -1,0 +1,40 @@
+<%
+###
+#
+# Author Ashwani Bhardwaj : VideoWiki
+# Description: This page is to create modal for all the last meeting attendees and their details show in a popup
+#
+###
+%>
+
+<div class="modal fade overflow-auto" id="roomAttendeesListModal_<%= id %>" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center">
+        <div class="modal-header">
+          <span class="m-0 cursor-pointer allow-icon-click text-center" >
+            Attendees
+          </span>
+        </div>
+        <div class="modal-body overflow-auto" style="height: calc(100vh - 180px);">
+            <% attendees['data'].to_a.each do |a| %>
+                    <div class="flex align-center text-left border-secondary border-bottom">
+                        <span data-toggle="tooltip" data-placement="bottom" title="<%= a['name'] %>" class="d-inline-block position-relative rounded-circle border-primary border text-primary text-center m-3" 
+                                style="width:50px;height:50px;line-height:50px;">
+                                <% if a['picture'] != "" %>
+                                <img src="<%= a['picture'] %>" />
+                                <% else %>
+                                <i class="fas fa-user"></i>
+                                <% end %>
+                        </span>
+                        <span class="m-3 text-primary"><%= a['name'] %></span>
+                    </div>
+            <% end %>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary create-room-button" data-toggle="modal" data-dismiss="modal">
+                <%= t("cancel") %>
+            </button>
+        </div>
+    </div>
+  </div>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_08_032132) do
+ActiveRecord::Schema.define(version: 2022_01_12_061022) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -77,6 +77,7 @@ ActiveRecord::Schema.define(version: 2021_01_08_032132) do
     t.string "provider"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "can_custom_branding", default: false
     t.index ["name", "provider"], name: "index_roles_on_name_and_provider", unique: true
     t.index ["name"], name: "index_roles_on_name"
     t.index ["priority", "provider"], name: "index_roles_on_priority_and_provider", unique: true
@@ -97,6 +98,7 @@ ActiveRecord::Schema.define(version: 2021_01_08_032132) do
     t.string "access_code"
     t.boolean "deleted", default: false, null: false
     t.string "moderator_access_code"
+    t.string "primary_color"
     t.index ["bbb_id"], name: "index_rooms_on_bbb_id"
     t.index ["deleted"], name: "index_rooms_on_deleted"
     t.index ["last_session"], name: "index_rooms_on_last_session"
@@ -144,6 +146,8 @@ ActiveRecord::Schema.define(version: 2021_01_08_032132) do
     t.boolean "deleted", default: false, null: false
     t.integer "role_id"
     t.datetime "last_login"
+    t.string "plan", default: "vw_plan#000"
+    t.string "plan_settings", default: "{\"muteOnStart\":false,\"requireModeratorApproval\":false,\"anyoneCanStart\":false,\"joinModerator\":false,\"recording\":false,\"primaryColor\":\"#6859B4\",\"secondaryColor\":\" \",\"brandImage\":\" \",\"backImage\":\" \"}"
     t.index ["created_at"], name: "index_users_on_created_at"
     t.index ["deleted"], name: "index_users_on_deleted"
     t.index ["email"], name: "index_users_on_email"

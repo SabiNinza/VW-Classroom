@@ -17,10 +17,13 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 class RoomsController < ApplicationController
+
   include Pagy::Backend
   include Recorder
   include Joiner
   include Populator
+
+  
 
   before_action :validate_accepted_terms, unless: -> { !Rails.configuration.terms }
   before_action :validate_verified_email, except: [:show, :join],
@@ -33,8 +36,10 @@ class RoomsController < ApplicationController
                 unless: -> { !Rails.configuration.enable_email_verification }
   before_action :verify_room_owner_valid, only: [:show, :join]
   before_action :verify_user_not_admin, only: [:show]
+
   skip_before_action :verify_authenticity_token, only: [:join]
 
+  
   # POST /
   def create
     # Return to root if user is not signed in
@@ -44,9 +49,12 @@ class RoomsController < ApplicationController
     return redirect_to current_user.main_room, flash: { alert: I18n.t("room.room_limit") } if room_limit_exceeded
 
     # Create room
-    @room = Room.new(name: room_params[:name], access_code: room_params[:access_code])
+    @room = Room.new(name: room_params[:name], access_code: room_params[:access_code], primary_color: room_params[:primary_color])
     @room.owner = current_user
     @room.room_settings = create_room_settings_string(room_params)
+    
+    @room.brand_image.attach(room_params[:brand_image])
+    
 
     # Save the room and redirect if it fails
     return redirect_to current_user.main_room, flash: { alert: I18n.t("room.create_room_error") } unless @room.save
@@ -61,6 +69,21 @@ class RoomsController < ApplicationController
     start
   end
 
+  def status(id)
+    room_running?(id)
+  end
+  helper_method :status
+
+  def attendees(id)
+    begin
+      res = RestClient.get('https://api.cast.video.wiki/api/get/class/joinee/details/?class_id='+id)
+      res = JSON.parse(res.body)
+    rescue => e
+      res = {}
+    end
+  end
+  helper_method :attendees
+
   # GET /:room_uid
   def show
     @room_settings = JSON.parse(@room[:room_settings])
@@ -70,11 +93,14 @@ class RoomsController < ApplicationController
 
     # If its the current user's room
     if current_user && (@room.owned_by?(current_user) || @shared_room)
+      if @current_user[:plan_settings].present?
+        @plan_settings = JSON.parse(@current_user[:plan_settings])
+      end
       # If the user is trying to access their own room but is not allowed to
       if @room.owned_by?(current_user) && !current_user.role.get_permission("can_create_rooms")
         return redirect_to cant_create_rooms_path
       end
-
+      
       # User is allowed to have rooms
       @search, @order_column, @order_direction, recs =
         recordings(@room.bbb_id, params.permit(:search, :column, :direction), true)
@@ -84,7 +110,6 @@ class RoomsController < ApplicationController
       @pagy, @recordings = pagy_array(recs)
     else
       return redirect_to root_path, flash: { alert: I18n.t("room.invalid_provider") } if incorrect_user_domain
-
       show_user_join
     end
   end
@@ -139,6 +164,7 @@ class RoomsController < ApplicationController
     begin
       # Don't delete the users home room.
       raise I18n.t("room.delete.home_room") if @room == @room.owner.main_room
+      @room.brand_image.purge if @room.brand_image.attached?
       @room.destroy
     rescue => e
       flash[:alert] = I18n.t("room.delete.fail", error: e)
@@ -173,10 +199,26 @@ class RoomsController < ApplicationController
 
     # Include the user's choices for the room settings
     @room_settings = JSON.parse(@room[:room_settings])
+    @plan_settings = JSON.parse(@current_user[:plan_settings])
     opts[:mute_on_start] = room_setting_with_config("muteOnStart")
     opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
     opts[:record] = record_meeting
-
+    if current_user.role.get_permission("can_custom_branding")
+      opts[:primary_color] = @plan_settings['primaryColor']
+      opts[:secondary_color] = @plan_settings["secondaryColor"]
+      opts[:brand_image] = current_user.brand_image.attached? ? url_for(current_user.brand_image) : @settings.get_value("Branding Image")
+      opts[:back_image] = @plan_settings["backImage"] if @plan_settings["backImage"]
+    elsif current_user.role.get_permission("can_full_custom_branding")
+      opts[:primary_color] = @room.primary_color? ? @room.primary_color : @room_settings["primaryColor"]
+      opts[:secondary_color] = @room_settings["secondaryColor"]
+      opts[:brand_image] = @room.brand_image.attached? ? url_for(@room.brand_image) : @settings.get_value("Branding Image")
+      opts[:back_image] = @room_settings["backImage"] if @room_settings["backImage"]
+    else
+      opts[:primary_color] = ''
+      opts[:secondary_color] = ''
+      opts[:brand_image] = @settings.get_value("Branding Image")
+      opts[:back_image] = ''
+    end
     begin
       redirect_to join_path(@room, current_user.name, opts, current_user.uid)
     rescue BigBlueButton::BigBlueButtonException => e
@@ -197,14 +239,10 @@ class RoomsController < ApplicationController
       raise "Room name can't be blank" if options[:name].blank?
 
       # Update the rooms values
-      room_settings_string = create_room_settings_string(options)
-
       @room.update_attributes(
         name: options[:name],
-        room_settings: room_settings_string,
-        access_code: options[:access_code]
+        access_code: options[:access_code],
       )
-
       flash[:success] = I18n.t("room.update_settings_success")
     rescue => e
       logger.error "Support: Error in updating room settings: #{e}"
@@ -213,7 +251,32 @@ class RoomsController < ApplicationController
 
     redirect_back fallback_location: room_path(@room)
   end
+  
+  #POST /:room_uid/update_branding
+  def update_branding
+    begin
+      options = params[:room].nil? ? params : params[:room]
+      if room_params[:brand_image].present?
+        @room.brand_image.attach(room_params[:brand_image])
+      else
+        @room.brand_image.purge
+      end
+      # Update the rooms values
+      room_branding_string = create_room_settings_string(options)
+      
+      @room.update_attributes(
+        room_settings: room_branding_string,
+        primary_color: options[:primary_color]
+      )
+      flash[:success] = I18n.t("room.update_settings_success")
+    rescue => e
+      logger.error "Support: Error in updating room branding: #{e}"
+      flash[:alert] = e
+    end
 
+    redirect_back fallback_location: room_path(@room)
+  end
+  
   # GET /:room_uid/current_presentation
   def current_presentation
     attached = @room.presentation.attached?
@@ -336,6 +399,10 @@ class RoomsController < ApplicationController
       "anyoneCanStart": options[:anyone_can_start] == "1",
       "joinModerator": options[:all_join_moderator] == "1",
       "recording": options[:recording] == "1",
+      "primaryColor": options[:primary_color],
+      "secondaryColor": options[:secondary_color],
+      "brandImage": options[:brand_image_name],
+      "backImage": options[:back_image]
     }
 
     room_settings.to_json
@@ -344,7 +411,7 @@ class RoomsController < ApplicationController
   def room_params
     params.require(:room).permit(:name, :auto_join, :mute_on_join, :access_code,
       :require_moderator_approval, :anyone_can_start, :all_join_moderator,
-      :recording, :presentation)
+      :recording, :presentation, :primary_color, :secondary_color, :brand_image, :brand_image_name, :back_image)
   end
 
   # Find the room from the uid.
@@ -426,6 +493,9 @@ class RoomsController < ApplicationController
          .include?(File.extname(room_params[:presentation].original_filename.downcase))
   end
 
+  def primary_color
+    return Rails.configuration.primary_color
+  end
   # Gets the room setting based on the option set in the room configuration
   def room_setting_with_config(name)
     config = case name

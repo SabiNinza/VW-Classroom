@@ -59,4 +59,13 @@ module RoomsHelper
   def hidden_format_public
     ENV.fetch("HIDDEN_FORMATS_PUBLIC", "").split(",")
   end
+
+  # Get the room status whether room is running(live) or not
+  def r_status(id)
+    status(id)
+  end
+
+  def get_Attendees(id)
+    attendees(id)
+  end
 end

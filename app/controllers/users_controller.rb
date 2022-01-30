@@ -24,16 +24,16 @@ class UsersController < ApplicationController
   include Recorder
   include Rolify
 
-  before_action :find_user, only: [:edit, :change_password, :delete_account, :update, :update_password]
+  before_action :find_user, only: [:edit, :change_password, :delete_account, :update, :update_password, :update_plan_settings]
   before_action :ensure_unauthenticated_except_twitter, only: [:create]
   before_action :check_user_signup_allowed, only: [:create]
-  before_action :check_admin_of, only: [:edit, :change_password, :delete_account]
+  before_action :check_admin_of, only: [:edit, :change_password, :delete_account, :update_plan_settings]
 
   # POST /u
   def create
     @user = User.new(user_params)
     @user.provider = @user_domain
-
+   
     # User or recpatcha is not valid
     render("sessions/new") && return unless valid_user_or_captcha
 
@@ -110,6 +110,44 @@ class UsersController < ApplicationController
     end
 
     render :edit
+  end
+
+  # POST /u/:user_uid/update_plan_setting
+  def update_plan_settings
+    begin
+    options = params[:user].nil? ? params : params[:user]
+    if user_params[:brand_image].present?
+      @user.brand_image.attach(user_params[:brand_image])
+    else
+      @user.brand_image.purge
+    end
+    # Update the user plan setting values
+    plan_settings_string = create_plan_settings_string(options)
+    @user.update_attributes(
+      plan_settings: plan_settings_string
+    )
+    flash[:success] = I18n.t("room.update_settings_success")
+    rescue => e
+      logger.error "Support: Error in updating plan settings: #{e}"
+      flash[:alert] = I18n.t("room.update_settings_error")
+    end
+
+    redirect_back fallback_location: root_path
+  end
+
+  def create_plan_settings_string(options)
+    plan_settings = {
+      "muteOnStart": options[:mute_on_join] == "1",
+      "requireModeratorApproval": options[:require_moderator_approval] == "1",
+      "anyoneCanStart": options[:anyone_can_start] == "1",
+      "joinModerator": options[:all_join_moderator] == "1",
+      "recording": options[:recording] == "1",
+      "primaryColor": options[:primary_color],
+      "secondaryColor": options[:secondary_color],
+      "brandImage": options[:brand_image_name],
+      "backImage": options[:back_image]
+    }
+    plan_settings.to_json
   end
 
   # POST /u/:user_uid/change_password
@@ -210,7 +248,8 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:name, :email, :image, :password, :password_confirmation,
-      :new_password, :provider, :accepted_terms, :language)
+      :new_password, :provider, :accepted_terms, :language, :plan, :mute_on_join, :require_moderator_approval, :anyone_can_start, 
+      :all_join_moderator, :recording, :primary_color, :secondary_color, :brand_image, :brand_image_name, :back_image)
   end
 
   def send_registration_email
@@ -227,4 +266,9 @@ class UsersController < ApplicationController
                              @user != current_user &&
                              !current_user.admin_of?(@user, "can_manage_users")
   end
+
+
+  #
+
+
 end

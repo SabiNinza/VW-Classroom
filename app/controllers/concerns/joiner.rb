@@ -49,7 +49,6 @@ module Joiner
 
   def join_room(opts)
     @room_settings = JSON.parse(@room[:room_settings])
-
     if room_running?(@room.bbb_id) || @room.owned_by?(current_user) || room_setting_with_config("anyoneCanStart")
 
       # Determine if the user needs to join as a moderator.
@@ -57,6 +56,10 @@ module Joiner
       opts[:record] = record_meeting
       opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
       opts[:mute_on_start] = room_setting_with_config("muteOnStart")
+      opts[:primary_color] = @room.primary_color
+      opts[:secondary_color] = @room_settings["secondaryColor"]
+      opts[:brand_image] = @room.brand_image.attached? ? url_for(@room.brand_image) : @settings.get_value("Branding Image")
+      opts[:back_image] = @room_settings["backImage"] if @room_settings["backImage"]
 
       if current_user
         redirect_to join_path(@room, current_user.name, opts, current_user.uid)
@@ -89,7 +92,11 @@ module Joiner
       meeting_logout_url: request.base_url + logout_room_path(@room),
       moderator_message: "#{invite_msg}<br> #{request.base_url + room_path(@room)}",
       host: request.host,
-      recording_default_visibility: @settings.get_value("Default Recording Visibility") == "public"
+      recording_default_visibility: @settings.get_value("Default Recording Visibility") == "public",
+      primary_color: '',
+      secondary_color: '',
+      brand_image: '',
+      back_image: ''
     }
   end
 

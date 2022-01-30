@@ -14,28 +14,36 @@
 %>
 
 <div data-path="<%= update_settings_path(room) %>" data-room-access-code="<%= room.access_code %>" class="card room-block">
-  <div class="card-body p-1">
-    <table class="table table-hover table-vcenter text-wrap table-no-border">
+  <div class="card-body p-0">
+    <% if current_user.role.get_permission("can_custom_branding") %>
+      <% bc = @plan_settings['primaryColor'] %>
+    <% elsif current_user.role.get_permission("can_full_custom_branding") %>
+      <% bc = room.primary_color || @room_settings['primaryColor'] %>
+   <% else %>
+      <% bc = user_color %>
+   <% end %>
+    <table class="table table-hover table-vcenter text-wrap table-no-border m-0">
       <tbody class="no-border-top">
-        <td>
-          <span class="stamp stamp-md bg-primary">
+        <td class="py-5">
+          <span class="stamp stamp-md bg-primary" style="background:<%=bc %> !important">
             <% if room == current_user.main_room %>
               <i class="fas fa-home"></i>
             <% else %>
-              <i class="fas fa-chalkboard-teacher"></i>
+              <i class="fas fa-chalkboard-teacher" ></i>
             <% end %>
           </span>
         </td>
         <td>
           <div>
             <h4 contenteditable="false" class="m-0 force-text-normal room-name-text" ><%= room.name %></h4>
+            <h4 class="m-0 force-text-normal room-primarycolor-text d-none" ><%= bc %></h4>
           </div>
           <div style="display: none">
             <input class="form-control input-sm w-100 h-4 room-name-editable" value="<%= room.name %>">
           </div>
           <div class="small text-muted">
             <% if room.sessions > 0 %>
-              <i><%= t("room.last_session", session: recording_date(room.last_session)) %></i>
+              <i><%= t("room.last_session", on: ':', session: recording_date(room.last_session)) %></i>
             <% else %>
               <i><%= t("room.no_sessions") %></i>
             <% end %>
@@ -70,5 +78,71 @@
         </td>
       </tbody>
     </table>
+    <% if r_status(room.bbb_id) %>
+        <span class="position-absolute rounded text-white" style="background: #E64980;
+        border-radius: 2px;padding: 2px 6px;right:5px;top:5px;"> LIVE </span>
+    <% end %>
+    <% att = get_Attendees(room.bbb_id) %>
+    <% if att['data'] %>  
+    <div class="class-cover-image" style="border-top:1px solid rgba(0, 40, 100, 0.12)">
+    <div class="align-items-center justify-content-between position-relative attendee-list p-6" style="background:<%= bc %>">
+      <% if att['data'].to_a.length <= 11 %>
+        <% att['data'].to_a.each do |a| %>  
+          <% if a['role'] == 'MODERATOR' %>
+            <span data-toggle="tooltip" data-placement="bottom" title="<%= a['name'] %>" class="position-absolute rounded-circle border-white border text-white text-center overflow-hidden" 
+            style="width:50px;height:50px;line-height:50px;top:-17px;left:calc(50% - 25px);background:<%= bc %>">
+              <% if a['picture'] != "" %>
+                <img src="<%= a['picture'] %>" />
+              <% else %>
+                <%= a['name'].chr %>
+              <% end %>
+            </span>
+          <% else %>
+            <span data-toggle="tooltip" data-placement="bottom" title="<%= a['name'] %>" class="d-inline-block position-relative rounded-circle border-white border text-white text-center my-3 left-overlap overflow-hidden" 
+              style="background:<%= bc %>">
+              <% if a['picture'] != "" %>
+                <img src="<%= a['picture'] %>" />
+              <% else %>
+                <%= a['name'][0,2].upcase %>
+              <% end %>
+            </span>
+          <% end %>
+        <% end %>
+      <% else %>
+          <% a = att['data'].to_a.take(10) %>
+          <% a.each do |a| %>
+            <% if a['role'] == 'MODERATOR' %>
+              <span data-toggle="tooltip" data-placement="bottom" title="<%= a['name'] %>" class="position-absolute rounded-circle border-white border text-white text-center overflow-hidden" 
+              style="width:50px;height:50px;line-height:50px;top:-17px;left:calc(50% - 25px);background:<%= bc %>">
+                <% if a['picture'] != "" %>
+                  <img src="<%= a['picture'] %>" />
+                <% else %>
+                  <%= a['name'].chr %>
+                <% end %>
+              </span>
+            <% else %>
+              <span data-toggle="tooltip" data-placement="bottom" title="<%= a['name'] %>" class="d-inline-block position-relative rounded-circle border-white border text-white text-center my-3 left-overlap overflow-hidden" 
+                style="background:<%= bc %>">
+                <% if a['picture'] != "" %>
+                  <img src="<%= a['picture'] %>" />
+                <% else %>
+                  <%= a['name'][0,2].upcase %>
+                <% end %>
+              </span>
+            <% end %>
+          <% end %>
+          <a href="#" class="d-inline-block position-relative rounded-circle border-white border text-white text-center text-bold left-overlap overflow-hidden my-3" 
+          style="background:<%= bc %>" data-toggle="modal" data-target="#roomAttendeesListModal_<%= room.bbb_id %>" >
+           +<%= att['data'].to_a.length - 10%>
+          </a>
+      <% end %>
+    </div>
+    </div>
+    <% else %>
+    <div class="small text-muted text-center py-7" style="border-top:1px solid rgba(0, 40, 100, 0.12)">
+      <i><%= t("room.no_sessions") %></i>
+    </div>
+    <% end %>
   </div>
 </div>
+<%= render "shared/modals/list_attendees_modal", attendees: att, id: room.bbb_id %>

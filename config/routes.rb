@@ -18,7 +18,7 @@
 
 Rails.application.routes.draw do
   get '/health_check', to: 'health_check#all'
-
+  get '/start_class', to: 'sessions#autoLogin', as: :autoLogin
   # Error routes.
   match '/401', to: 'errors#unauthorized', via: :all, as: :unauthorized
   match '/404', to: 'errors#not_found', via: :all, as: :not_found
@@ -98,6 +98,7 @@ Rails.application.routes.draw do
     post '/:user_uid/edit', to: 'users#update', as: :update_user
     post '/:user_uid/change_password', to: 'users#update_password', as: :update_password
     delete '/:user_uid', to: 'users#destroy', as: :delete_user
+    post '/:user_uid/plan_settings_edit', to: 'users#update_plan_settings', as: :update_plan_settings
 
     # All user recordings
     get '/:user_uid/recordings', to: 'users#recordings', as: :get_user_recordings
@@ -126,6 +127,7 @@ Rails.application.routes.draw do
     patch '/', to: 'rooms#update', as: :update_room
     get '/room_settings', to: 'rooms#room_settings'
     post '/update_settings', to: 'rooms#update_settings'
+    post '/update_branding', to: 'rooms#update_branding'
     get '/current_presentation', to: 'rooms#current_presentation'
     post '/preupload_presentation', to: 'rooms#preupload_presentation'
     post '/remove_presentation', to: 'rooms#remove_presentation'

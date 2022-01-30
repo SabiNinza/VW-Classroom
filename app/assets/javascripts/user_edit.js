@@ -33,6 +33,16 @@ $(document).on('turbolinks:load', function(){
       $("#user_role_id").val($("#role-dropdown").selectpicker('val'))
     })
 
+    // Check to see if the plan dropdown was set up
+    if ($("#plan-dropdown").length != 0){
+      $("#plan-dropdown").selectpicker('val', $("#user_plan_id").val())
+    }
+
+    // Update hidden field with new value
+    $("#plan-dropdown").on("changed.bs.select", function(){
+      $("#user_plan_id").val($("#plan-dropdown").selectpicker('val'))
+    })
+
     // Update hidden field with new value
     // $("#language-dropdown").on("show.bs.select", function(){
     //   $("#language-dropdown").selectpicker('val', $("#user_language").val())
