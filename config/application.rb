@@ -181,8 +181,11 @@ module Greenlight
     # Default admin password
     config.admin_password_default = ENV['ADMIN_PASSWORD'] || 'administrator'
 
+    config.attendees_post_endpoint = "https://dev.cast.api.video.wiki/api/class/joinee/details/"
+    config.attendees_get_endpoint = "https://dev.cast.api.video.wiki/api/get/class/joinee/details/?class_id"
     # Default Back Image API For Rooms
     config.backimage_endpoint = "https://api.cast.video.wiki/api/photos/?category='all'"
+
     # All primary colors for room branding
     config.primary_color = [["#467FCF","River Blue"],["#58821E","Forest Green"],["#9DCD5B","Grassland Green"],["#3BA0BE","Ocean Teal"],["#6859B4","Space Purple"],["#F2C244","Solar Yellow"],["#EA7526","Sunny Orange"],["#C6211B","Business Red"],["#F36677","Personal Pink"],["#B3B3B3","Machine Grey"]]
     # All plans for users

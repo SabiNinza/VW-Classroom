@@ -76,7 +76,7 @@ class RoomsController < ApplicationController
 
   def attendees(id)
     begin
-      res = RestClient.get('https://dev.cast.api.video.wiki/api/get/class/joinee/details/?class_id='+id)
+      res = RestClient.get(Rails.configuration.attendees_get_endpoint+"="+id)
       res = JSON.parse(res.body)
     rescue => e
       res = {}

@@ -68,9 +68,12 @@
                   <i class="dropdown-icon fas fa-users"></i> <%= t("room.share") %>
                 </a>
               <% end %>
+              <a href="<%= request.base_url+"/learning-analytics-dashboard/?meeting="+room.bbb_id %>" class="dropdown-item">
+                <i class="dropdown-icon fas fa-chart-bar"></i> <%= t("room.analytics") %>
+              </a>
               <% unless room == current_user.main_room %>
                 <a href="" data-toggle="modal" data-target="#deleteRoomModal" data-path="<%= room_path(room) %>" data-name="<%= room.name %>" class="delete-room dropdown-item">
-                  <i class="dropdown-icon far fa-trash-alt"></i> <%= t("delete") %>
+                  <i class="dropdown-icon fas fa-trash-alt"></i> <%= t("delete") %>
                 </a>
               <% end %>
             </div>
@@ -85,7 +88,7 @@
     <% att = get_Attendees(room.bbb_id) %>
     <% if att['data'] %>  
     <div class="class-cover-image" style="border-top:1px solid rgba(0, 40, 100, 0.12)">
-    <div class="align-items-center justify-content-between position-relative attendee-list p-6" style="background:<%= bc %>">
+    <div class="d-flex align-items-center justify-content-center position-relative attendee-list px-6 pt-6" style="background:<%= bc %>">
       <% if att['data'].to_a.length <= 11 %>
         <% att['data'].to_a.each do |a| %>  
           <% if a['role'] == 'MODERATOR' %>
@@ -131,10 +134,9 @@
               </span>
             <% end %>
           <% end %>
-          <a href="#" class="d-inline-block position-relative rounded-circle border-white border text-white text-center text-bold left-overlap overflow-hidden my-3" 
-          style="background:<%= bc %>" data-toggle="modal" data-target="#roomAttendeesListModal_<%= room.bbb_id %>" >
-           +<%= att['data'].to_a.length - 10%>
-          </a>
+          <span onclick="return false" data-toggle="modal" data-target="#roomAttendeesListModal_<%= room.bbb_id %>" style="background:<%= bc %>" class="d-inline-block position-relative rounded-circle border-white border text-white text-center text-bold left-overlap overflow-hidden my-3">
+            +<%= att['data'].to_a.length - 10%>
+          </span>
       <% end %>
     </div>
     </div>
