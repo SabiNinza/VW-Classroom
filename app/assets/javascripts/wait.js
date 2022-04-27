@@ -27,7 +27,7 @@ $(document).on("turbolinks:load", function(){
     }, {
       connected: function() {
         console.log("connected");
-        setTimeout(startRefreshTimeout, 120000);
+        setTimeout(startRefreshTimeout, 60000);
       },
 
       disconnected: function(data) {
@@ -54,7 +54,7 @@ var join_attempts = 0;
 function request_to_join_meeting() {
   $.post(window.location.pathname, { join_name: $(".background").attr("join-name") }, function() {
     //Successful post - set up retry incase
-    if(join_attempts < 4){ setTimeout(request_to_join_meeting, 10000); }
+    if(join_attempts < 20){ setTimeout(request_to_join_meeting, 3000); }
     join_attempts++;
   })
 }

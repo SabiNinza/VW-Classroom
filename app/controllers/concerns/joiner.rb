@@ -49,23 +49,43 @@ module Joiner
 
   def join_room(opts)
     @room_settings = JSON.parse(@room[:room_settings])
-    if room_running?(@room.bbb_id) || @room.owned_by?(current_user) || room_setting_with_config("anyoneCanStart")
+    @plan_settings = JSON.parse(@room.owner[:plan_settings])
+    
+    if room_running?(@room.bbb_id) || @room.owned_by?(current_user) || @plan_settings["anyoneCanStart"] || room_setting_with_config("anyoneCanStart")
 
-      # Determine if the user needs to join as a moderator.
-      opts[:user_is_moderator] = @room.owned_by?(current_user) || room_setting_with_config("joinModerator") || @shared_room
+      if @room.owner.role.get_permission("can_custom_branding") && @plan_settings["anyoneCanStart"]
+        
+        # Determine if the user needs to join as a moderator.
+        opts[:user_is_moderator] = @room.owned_by?(current_user) || @plan_settings["joinModerator"] || @shared_room
+        opts[:require_moderator_approval] = @plan_settings["requireModeratorApproval"]
+        opts[:mute_on_start] = @plan_settings["muteOnStart"]
+
+        opts[:primary_color] = @plan_settings['primaryColor']
+        opts[:secondary_color] = @plan_settings["secondaryColor"]
+        opts[:brand_image] = @room.owner.brand_image.attached? ? url_for(@room.owner.brand_image) : @settings.get_value("Branding Image")
+        opts[:back_image] = @plan_settings["backImage"] if @plan_settings["backImage"]
+      elsif @room.owner.role.get_permission("can_full_custom_branding") && room_setting_with_config("anyoneCanStart")
+        # Determine if the user needs to join as a moderator.
+        opts[:user_is_moderator] = @room.owned_by?(current_user) || room_setting_with_config("joinModerator") || @shared_room
+        opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
+        opts[:mute_on_start] = room_setting_with_config("muteOnStart")
+
+        opts[:primary_color] = @room.primary_color? ? @room.primary_color : @room_settings["primaryColor"]
+        opts[:secondary_color] = @room_settings["secondaryColor"]
+        opts[:brand_image] = @room.brand_image.attached? ? url_for(@room.brand_image) : @settings.get_value("Branding Image")
+        opts[:back_image] = @room_settings["backImage"] if @room_settings["backImage"]
+      else
+        opts[:primary_color] = @settings.get_value("Primary Color")
+        opts[:secondary_color] = ''
+        opts[:brand_image] = @settings.get_value("Branding Image")
+        opts[:back_image] = ''
+      end
       opts[:record] = record_meeting
-      opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
-      opts[:mute_on_start] = room_setting_with_config("muteOnStart")
-      opts[:primary_color] = @room.primary_color
-      opts[:secondary_color] = @room_settings["secondaryColor"]
-      opts[:brand_image] = @room.brand_image.attached? ? url_for(@room.brand_image) : @settings.get_value("Branding Image")
-      opts[:back_image] = @room_settings["backImage"] if @room_settings["backImage"]
-
+      
       if current_user
         redirect_to join_path(@room, current_user.name, opts, current_user.uid)
       else
         join_name = params[:join_name] || params[@room.invite_path][:join_name]
-
         redirect_to join_path(@room, join_name, opts, fetch_guest_id)
       end
     else

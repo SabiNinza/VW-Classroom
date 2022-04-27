@@ -455,12 +455,12 @@ function clearRoomSearch() {
   filterRooms()
 }
 
-function joinAttendee(id,n,e,r,p,s,rp){
+function joinAttendee(ep,id,n,e,r,p,s,rp){
   event.preventDefault();
   n = n || document.querySelector('input.joinee-name').value;
   let data = {"class_id":id,"name":n,"email":e,"role":r,"picture":p,"session":s};
   $.ajax({
-    url: "https://dev.cast.api.video.wiki/api/class/joinee/details/",
+    url: ep,
     method: "POST",
     data: data,
     error: function(jqXHR, textStatus, error) {

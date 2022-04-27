@@ -76,7 +76,7 @@ class RoomsController < ApplicationController
 
   def attendees(id)
     begin
-      res = RestClient.get('https://dev.cast.api.video.wiki/api/get/class/joinee/details/?class_id='+id)
+      res = RestClient.get(Rails.configuration.attendees_get_endpoint+"="+id)
       res = JSON.parse(res.body)
     rescue => e
       res = {}
@@ -200,15 +200,18 @@ class RoomsController < ApplicationController
     # Include the user's choices for the room settings
     @room_settings = JSON.parse(@room[:room_settings])
     @plan_settings = JSON.parse(@current_user[:plan_settings])
-    opts[:mute_on_start] = room_setting_with_config("muteOnStart")
-    opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
+    
     opts[:record] = record_meeting
     if current_user.role.get_permission("can_custom_branding")
+      opts[:mute_on_start] = @plan_settings["muteOnStart"]
+      opts[:require_moderator_approval] = @plan_settings["requireModeratorApproval"]
       opts[:primary_color] = @plan_settings['primaryColor']
       opts[:secondary_color] = @plan_settings["secondaryColor"]
       opts[:brand_image] = current_user.brand_image.attached? ? url_for(current_user.brand_image) : @settings.get_value("Branding Image")
       opts[:back_image] = @plan_settings["backImage"] if @plan_settings["backImage"]
     elsif current_user.role.get_permission("can_full_custom_branding")
+      opts[:mute_on_start] = room_setting_with_config("muteOnStart")
+      opts[:require_moderator_approval] = room_setting_with_config("requireModeratorApproval")
       opts[:primary_color] = @room.primary_color? ? @room.primary_color : @room_settings["primaryColor"]
       opts[:secondary_color] = @room_settings["secondaryColor"]
       opts[:brand_image] = @room.brand_image.attached? ? url_for(@room.brand_image) : @settings.get_value("Branding Image")
