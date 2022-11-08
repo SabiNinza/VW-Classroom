@@ -25,11 +25,16 @@
       <div class="col-lg-12 col-sm-12">
         <div id="room-title" class="d-flex align-items-center justify-content-between display-3 text-white form-inline <%= 'edit_hover_class' if current_user.main_room != @room %>" data-path="<%= update_settings_path(@room) %>">
            <h1 contenteditable=false id="user-text" class="display-3 text-left mb-3 font-weight-600"><%= title(@room.name) %>
+          
+           <% if false %>
+           remove-color-platte
            <% if current_user.role.get_permission("can_custom_branding") || current_user.role.get_permission("can_full_custom_branding") || @current_user.role.name === 'Admin' %>
             <span href="#" data-toggle="modal" data-target="#roomBrandingModal"  class="icon update-branding cursor-pointer">
               <i class="fa fa-regular fa-palette text-white"></i>
             </span>
             <% end %>
+            <% end %>
+
            </h1>
           <%# if current_user.main_room == @room %>
             <%#a class="disable-click"><i class="fas fa-home align-top home-indicator ml-2"></i></a>
@@ -81,6 +86,17 @@
                     <%#= t("copy") %>
                   </button>
                 </div>
+
+                <%# add-color-platte%>
+
+                <div class="col-sm-2 mt-2">
+                <% if current_user.role.get_permission("can_custom_branding") || current_user.role.get_permission("can_full_custom_branding") || @current_user.role.name === 'Admin' %>
+                  <button href="#" data-toggle="modal" data-target="#roomBrandingModal"  class="icon update-branding cursor-pointer btn btn-primary btn-block">
+                  <i class="fa fa-regular fa-palette text-white"></i>
+                  </button>
+                <% end %>
+                </div>
+
                 <% if @room.access_code.present? %>
 		              <div class="col-sm-2 mt-2 mx-n2">
                       <input id="copy-code" value="<%= @room.access_code %>" type="hidden">
